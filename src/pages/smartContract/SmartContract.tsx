@@ -79,13 +79,13 @@ useEffect(() => {
   loadAllData();
 }, [wallet]);
  
-  const handleSelectPackage = (pkg: any) => {
-    if (userPackage >= pkg.id) {
-      notifyError("Package already active");
-      return;
-    }
-    setSelectedPackage(pkg);
-  };
+  // const handleSelectPackage = (pkg: any) => {
+  //   if (userPackage >= pkg.id) {
+  //     notifyError("Package already active");
+  //     return;
+  //   }
+  //   setSelectedPackage(pkg);
+  // };
  
 
 useEffect(() => {
@@ -125,9 +125,9 @@ useEffect(() => {
   loadNetwork();
 }, [wallet]);
 
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
 
 const handleClaimMatching = async () => {
   if (!wallet) return;
@@ -193,7 +193,7 @@ const handleClaimMatching = async () => {
           <div className="row">
 
 
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
             <div className="col-lg-12 col-xl-6 order-md-3 order-xl-2 ">
 
               <div className="row">

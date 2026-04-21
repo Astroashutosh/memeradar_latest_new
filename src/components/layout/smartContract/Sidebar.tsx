@@ -8,11 +8,9 @@ import { Link } from 'react-router-dom';
 // import { upgradePackage, checkUserRegistered } from "../../../solana/program";
 // import { notifySuccess, notifyError } from "../../../solana/context/Notifications";
 
-interface SidebarProps {
-  onUpgradeClick: (pkg: any) => void;
-}
 
-function Sidebar({ onUpgradeClick }: SidebarProps) {
+
+function Sidebar() {
   const { wallet } = useWallet();
   const [userData, setUserData] = useState<UserData | null>(null);
 // const [sponsorData, setSponsorData] = useState<any>(null);
