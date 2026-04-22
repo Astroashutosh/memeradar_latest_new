@@ -67,12 +67,12 @@ const [sponsorData, setSponsorData] = useState<{
            <h4> New LLP Program </h4>
             <div className="row">
               <div className="col-sm-6 mt-2">
-                <Link to="/LLPReward" state={{ activeTab: "pre" }} className="btn btn-primary bg-gradient-golden  d-block">
+                <Link to="/preLLPReward" state={{ activeTab: "pre" }} className="btn btn-primary bg-gradient-golden  d-block">
                   Start<i className="fa-regular fa-arrow-right ms-1"></i>
                 </Link>
               </div>
               <div className="col-sm-6 mt-2">
-                <Link to="/LLPReward" state={{ activeTab: "final" }} className="btn btn-primary d-block">
+                <Link to="/finalLLP" state={{ activeTab: "final" }} className="btn btn-primary d-block">
                   Upgrade<i className="fa-regular fa-arrow-right ms-1"></i>
                 </Link>
 

@@ -1912,36 +1912,75 @@ if (!isPreDone) {
     // =============================
     // CREATE ATA IF NOT EXISTS
     // =============================
-    const txInit = new anchor.web3.Transaction();
+//     const txInit = new anchor.web3.Transaction();
 
-    if (!(await connection.getAccountInfo(fromAta))) {
-      txInit.add(
-        createAssociatedTokenAccountInstruction(
-          wallet.publicKey,
-          fromAta,
-          wallet.publicKey,
-          MINT
-        )
-      );
-    }
+//     if (!(await connection.getAccountInfo(fromAta))) {
+//       txInit.add(
+//         createAssociatedTokenAccountInstruction(
+//           wallet.publicKey,
+//           fromAta,
+//           wallet.publicKey,
+//           MINT
+//         )
+//       );
+//     }
 
-    if (!(await connection.getAccountInfo(toAta))) {
-      txInit.add(
-        createAssociatedTokenAccountInstruction(
-          wallet.publicKey,
-          toAta,
-          vault,
-          MINT
-        )
-      );
-    }
+//     if (!(await connection.getAccountInfo(toAta))) {
+//       txInit.add(
+//         createAssociatedTokenAccountInstruction(
+//           wallet.publicKey,
+//           toAta,
+//           vault,
+//           MINT
+//         )
+//       );
+//     }
 
-    if (txInit.instructions.length > 0) {
-      const tx = await wallet.signTransaction(txInit);
-const sig = await connection.sendRawTransaction(tx.serialize());
-await connection.confirmTransaction(sig);
-      await connection.confirmTransaction(sig);
-    }
+//     if (txInit.instructions.length > 0) {
+//       const tx = await wallet.signTransaction(txInit);
+// const sig = await connection.sendRawTransaction(tx.serialize());
+// await connection.confirmTransaction(sig);
+//       await connection.confirmTransaction(sig);
+//     }
+
+const txInit = new anchor.web3.Transaction();
+
+if (!(await connection.getAccountInfo(fromAta))) {
+  txInit.add(
+    createAssociatedTokenAccountInstruction(
+      wallet.publicKey,
+      fromAta,
+      wallet.publicKey,
+      MINT
+    )
+  );
+}
+
+if (!(await connection.getAccountInfo(toAta))) {
+  txInit.add(
+    createAssociatedTokenAccountInstruction(
+      wallet.publicKey,
+      toAta,
+      vault,
+      MINT
+    )
+  );
+}
+
+// ✅ IMPORTANT FIX
+if (txInit.instructions.length > 0) {
+  const latestBlockhash = await connection.getLatestBlockhash();
+
+  txInit.recentBlockhash = latestBlockhash.blockhash;
+  txInit.feePayer = wallet.publicKey;
+
+  const signedTx = await wallet.signTransaction(txInit);
+  const sig = await connection.sendRawTransaction(signedTx.serialize());
+
+  await connection.confirmTransaction(sig);
+}
+
+
 
     // =============================
     // BUILD UPLINE
