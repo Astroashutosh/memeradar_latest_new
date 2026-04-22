@@ -1,28 +1,85 @@
 import * as anchor from "@coral-xyz/anchor";
 
+// export interface UserData {
+//   userId: number;
+//   rank: string;
+//   upline: string;
+//   uplineId?: number;
+//   sponsor: string;
+//   sponsorId?: number;
+//   totalIncome: number;
+//   sponsorIncome: number;
+//   directIncome: number;
+//   levelIncome: number;
+//   poolIncome: number;
+//   lapsIncome: number;
+//   leftPartner: string;
+//   rightPartner: string;
+//   leftPartnerId?: number;
+//   rightPartnerId?: number;
+//   leftVolume: number;
+//   rightVolume: number;
+//   currentPackage: number;
+//     carryLeft: number;
+//   carryRight: number;
+// }
+
+
+
+
+
 export interface UserData {
-  userId: number;
-  rank: string;
-  upline: string;
-  uplineId?: number;
-  sponsor: string;
-  sponsorId?: number;
+  wallet: string;
+  exists: boolean;
+
+  preLpp: number;
+  finalLpp: number;
+
+  totalDeposit: number;
   totalIncome: number;
-  sponsorIncome: number;
+
   directIncome: number;
-  levelIncome: number;
-  poolIncome: number;
-  lapsIncome: number;
-  leftPartner: string;
-  rightPartner: string;
-  leftPartnerId?: number;
-  rightPartnerId?: number;
-  leftVolume: number;
-  rightVolume: number;
+  teamIncome: number;
+  upIncome: number;
+  downIncome: number;
+
+  lppProgramReward: number;
+  directKickBonus: number;
+  teamStarterBonus: number;
+  downLadderBonus: number;
+  upLadderBonus: number;
+
+  leadershipBonus: number;
+
+  bossReward: number;
+  memePoolReward: number;
+  bigWishReward: number;
+
+  directTeam: number;
+  networkTeam: number;
+  directCount: number;
+
+  teamVolume: number;
+
+  rank: number;
+  multiplier: number;
+  maxPayout: number;
+
+  strongestLeg: number;
+  secondLeg: number;
+
+  lastBonusClaim: number;
+  monthlyBonusEarned: number;
+
   currentPackage: number;
-    carryLeft: number;
-  carryRight: number;
+
+  investments: any[];
 }
+
+
+
+
+
 
 export interface AnchorUserAccount {
   wallet: anchor.web3.PublicKey;

@@ -41,8 +41,10 @@ import Loader from './utils/Loader';
 import { useEffect, useState } from 'react';
 import MatrixTreeDetails from './pages/smartContract/MatrixTreeDetails';
 import LevelbonusDetails from './pages/smartContract/LevelbonusDetails';
-import LLPReward from './pages/smartContract/LLPReward';
+// import LLPReward from './pages/smartContract/PreLLPReward';
 import LLPRewardHistory from './pages/smartContract/LLPRewardHistory';
+import PreLLPReward from './pages/smartContract/PreLLPReward';
+import FinalLLP from './pages/smartContract/FinalLLP';
 
 
 
@@ -93,7 +95,9 @@ useEffect(() => {
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
             {/* <Route element={<MainLayout />}> */}
             <Route path="/smartContract" element={<SmartContract />} />
-            <Route path="/LLPReward" element={<LLPReward />} />
+            <Route path="/finalLLP" element={<FinalLLP />} />
+            <Route path="/preLLPReward" element={<PreLLPReward />} />
+
             <Route path="/LLPRewardHistory" element={<LLPRewardHistory />} />
 
             <Route path="/directTeam" element={<DirectTeam />} />

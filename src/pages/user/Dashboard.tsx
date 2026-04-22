@@ -11,7 +11,7 @@ import ReadyToPump from "../../components/dashboard/ReadyToPump";
 import TrendingToken from "../../components/dashboard/TrendingToken";
 import { useWallet } from "../../solana/context/WalletContext";
 import { packages, getUserData, shorten, getSponsorDetails } from "../../solana/program";
-import type { UserData } from "../../solana/types";
+// import type { UserData } from "../../solana/types";
 import { copyToClipboard } from "../../utils/helpers"
 import { Link } from "react-router-dom";
 // import UpgradeModal from "../../components/modal/UpgradeModal";
@@ -90,7 +90,8 @@ function Dashboard() {
   const [showModal, setShowModal] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const { wallet, walletReady } = useWallet();
-  const [userData, setUserData] = useState<UserData | null>(null);
+  // const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [selectedPackage] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 

@@ -29,17 +29,18 @@ const [networkCount, setNetworkCount] = useState(0);
 const { handleUpgrade, upgrading } = useUpgrade();
 // const [showClaimModal, setShowClaimModal] = useState(false);
 // const [loading, setLoading] = useState(false);
-const [totalEarning] = useState(0);
-const [todayEarning] = useState(0);
-const [lapsIncome] = useState(0);
+const [totalEarning, setTotalEarning] = useState(0);
+const [todayEarning, setTodayEarning] = useState(0);
+const [lapsIncome, setLapsIncome] = useState(0);
 const [incomeData, setIncomeData] = useState({
-  sponsor: { total: 0, today: 0 },   // LPP Program Reward
-  direct: { total: 0, today: 0 },    // Direct Kick
-  pool: { total: 0, today: 0 },      // Boss/Meme/BigWish
-  level: { total: 0, today: 0 },     // Down Ladder
-  matching: { total: 0, today: 0 },  // Up Ladder
-  silver: { total: 0, today: 0 },    // Leadership
+  sponsor: { total: 0, today: 0 },
+  direct: { total: 0, today: 0 },
+  pool: { total: 0, today: 0 },
+  level: { total: 0, today: 0 },
+  matching: { total: 0, today: 0 },
+  silver: { total: 0, today: 0 },
 });
+
 useEffect(() => {
   if (!wallet) return;
  
@@ -50,7 +51,7 @@ useEffect(() => {
       const [
         user,
         levels,
-        // incomeRes,
+        incomeRes,
         earningRes
       ] = await Promise.all([
         getUserData(wallet),
@@ -62,45 +63,17 @@ useEffect(() => {
       // ✅ user data
       if (user) {
         setUserData(user);
-        console.log("User full data is  ",user);
         // setUserPackage(user.currentPackage);
       }
  
       // ✅ network
       setNetworkCount(levels.flat().length);
  
- 
-
-setIncomeData({
-  sponsor: {
-    total: user?.lppProgramReward || 0,
-    today: 0
-  },
-  direct: {
-    total: user?.directKickBonus || 0,
-    today: 0
-  },
-  pool: {
-    total: user?.bossReward || 0,
-    today: 0
-  },
-  level: {
-    total: user?.downLadderBonus || 0,
-    today: 0
-  },
-  matching: {
-    total: user?.upLadderBonus || 0,
-    today: 0
-  },
-  silver: {
-    total: user?.leadershipBonus || 0,
-    today: 0
-  }
-});
-
-      // setTotalEarning(earningRes.total);
-      // setTodayEarning(earningRes.today);
-      // setLapsIncome(earningRes.lapsTotal);
+      // ✅ income
+      setIncomeData(incomeRes);
+      setTotalEarning(earningRes.total);
+      setTodayEarning(earningRes.today);
+      setLapsIncome(earningRes.lapsTotal);
  
     } catch (err) {
       console.error(err);
@@ -237,7 +210,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">LPP Program Reward</h2>
-                    <h3><span className="partnerSponsorBonus">{userData?.lppProgramReward ?? 0} </span> SOL</h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.sponsorIncome ?? 0} </span> SOL</h3>
                   </Link>
                 </div>
 
@@ -273,7 +246,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">Direct Kick Bonus</h2>
-                    <h3><span className="partnerSponsorBonus">{userData?.directKickBonus ?? 0}</span> </h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.sponsorIncome ?? 0} </span> </h3>
                   </Link>
                 </div>
                 <div className="col-md-6 col-lg-6 mb-3">
@@ -282,7 +255,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">Team Starter Bonus</h2>
-                    <h3><span className="partnerSponsorBonus">{userData?.teamStarterBonus ?? 0} </span> </h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.directIncome ?? 0} </span> </h3>
                   </Link>
                 </div>
              
@@ -293,7 +266,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">Down Ladder Bonus</h2>
-                    <h3><span className="partnerSponsorBonus">{userData?.downLadderBonus ?? 0} </span> </h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.levelIncome ?? 0} </span> </h3>
                   </Link>
                 </div>
 
@@ -304,7 +277,7 @@ const handleClaimMatching = async () => {
                     </div>
                     <h2 className="title">Up Ladder Bonus</h2>
                     <Link to="/matchingBonus">
-                      <h3><span className="partnerSponsorBonus">{userData?.upLadderBonus ?? 0} </span> </h3>
+                      <h3><span className="partnerSponsorBonus">{userData?.matchingIncome ?? 0} </span> </h3>
                     </Link>
 
                   </div>
@@ -316,7 +289,7 @@ const handleClaimMatching = async () => {
                     </div>
                     <h2 className="title">Leadership Bonus</h2>
                     <Link to="/globalPoolBonus">
-                      <h3><span className="partnerSponsorBonus">{userData?.leadershipBonus ?? 0} </span> </h3>
+                      <h3><span className="partnerSponsorBonus">{userData?.silverBonus ?? 0} </span> </h3>
                     </Link>
 
                   </div>
@@ -328,7 +301,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">Boss Reward</h2>
-                    <h3><span className="partnerSponsorBonus">{userData?.bossReward ?? 0}</span> SOL</h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.poolIncome ?? 0} </span> SOL</h3>
                   </Link>
                 </div>
 
@@ -338,7 +311,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">Meme Pool Reward</h2>
-                    <h3><span className="partnerSponsorBonus">{(userData?.memePoolReward ?? 0).toFixed(4)} </span> </h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.poolIncome ?? 0} </span> </h3>
                   </Link>
                 </div>
 
@@ -348,7 +321,7 @@ const handleClaimMatching = async () => {
                       <img src={`${import.meta.env.BASE_URL}img/usdt-icon.png`} />
                     </div>
                     <h2 className="title">Big Wish Reward</h2>
-                    <h3><span className="partnerSponsorBonus">{(userData?.bigWishReward ?? 0).toFixed(4)}</span> </h3>
+                    <h3><span className="partnerSponsorBonus">{userData?.poolIncome ?? 0} </span> </h3>
                   </Link>
                 </div>
 
@@ -400,6 +373,27 @@ const handleClaimMatching = async () => {
                     </div>
                   </Link>
                 </div>
+                {/* <div className="col-md-6 col-lg-6 mb-3">
+                  <Link to="/mpLostDetails">
+                    <div className="stats-box bg-gradient-green" style={{ lineHeight: "0.3" }}>
+                      <div className="row">
+                        <div className="col-lg-6 col-6">
+                          <h2 className="title mb-0 fxs-small" style={{ opacity: "initial" }}><i
+                            className="bi bi-exclamation-triangle-fill"></i> Total Lost Left MP</h2>
+                          <h3 className="totallapsIncome">{userData?.lostLeft ?? 0}</h3>
+                        </div>
+                        <div className="col-lg-6 col-6 text-end">
+                          <h2 className="title mb-0 fxs-small" style={{ opacity: "initial" }}><i
+                            className="bi bi-exclamation-triangle-fill"></i> Total Lost Right MP</h2>
+                          <h3 className="totallapsIncome">{userData?.lostRight ?? 0}</h3>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: "10px", marginTop: "5px" }}>Take action now to keep your Matching Bonus!</div>
+                    </div>
+                  </Link>
+                </div> */}
+
+
 
               </div>
             </div>
@@ -412,60 +406,53 @@ const handleClaimMatching = async () => {
                         <h4> {totalEarning.toFixed(4)} SOL </h4>
                         <small> Total Earning</small>
                       </div>
-             <table className="table">
-  <tbody>
-    <tr>
-      <td className="text-start">LPP Program Reward </td>
-      <td>{(incomeData?.sponsor?.total ?? 0).toFixed(4)} SOL</td>
-    </tr>
+                      <table className="table">
+                        <tbody>
+                          <tr>
+                            <td className="text-start">LPP Program Reward </td>
+                            <td className="">{incomeData.sponsor.total.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Power Multiplier</td>
+                            <td className="">{incomeData.direct.total.toFixed(4)} SOL </td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Direct Kick Bonus</td>
+                            <td className="">{incomeData.pool.total.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Team Starter Bonus </td>
+                            <td className=""> {incomeData.matching.total.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Down Ladder Bonus</td>
+                            <td className="">{incomeData.level.total.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Up Ladder Bonus </td>
+                            <td className="">{incomeData.silver.total.toFixed(4)} SOL</td>
+                          </tr>
 
-    <tr>
-      <td className="text-start">Power Multiplier</td>
-      <td>{(userData?.multiplier ?? 0)}X</td>
-    </tr>
+ <tr>
+                        <td className="text-start">Leadership Bonus </td>
+                        <td className="">$0.1425</td>
+                      </tr>
 
-    <tr>
-      <td className="text-start">Direct Kick Bonus</td>
-      <td>{(incomeData?.direct?.total ?? 0).toFixed(4)} SOL</td>
-    </tr>
+                      <tr>
+                        <td className="text-start">Boss Reward </td>
+                        <td className="">$1.0012</td>
+                      </tr>
+                      <tr>
+                        <td className="text-start">Meme-Pool Reward </td>
+                        <td className="">$0.1242</td>
+                      </tr>
+                      <tr>
+                        <td className="text-start">Big Wish Reward </td>
+                        <td className="">$0.3452</td>
+                      </tr>
 
-    <tr>
-      <td className="text-start">Team Starter Bonus </td>
-      <td>{(incomeData?.direct?.total ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-    <tr>
-      <td className="text-start">Down Ladder Bonus</td>
-      <td>{(incomeData?.level?.total ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-    <tr>
-      <td className="text-start">Up Ladder Bonus </td>
-      <td>{(incomeData?.matching?.total ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-    <tr>
-      <td className="text-start">Leadership Bonus </td>
-      <td>{(incomeData?.silver?.total ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-    <tr>
-      <td className="text-start">Boss Reward </td>
-      <td>{(userData?.bossReward ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-    <tr>
-      <td className="text-start">Meme-Pool Reward </td>
-      <td>{(userData?.memePoolReward ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-    <tr>
-      <td className="text-start">Big Wish Reward </td>
-      <td>{(userData?.bigWishReward ?? 0).toFixed(4)} SOL</td>
-    </tr>
-
-  </tbody>
-</table>
+                        </tbody>
+                      </table>
                       <Link to="/earningCertificate" target="_blank" className="btn btn-primary btn-sm rounded">
                         <i className="fa-regular fa-download me-1"></i>Download Certificate
                       </Link>
@@ -473,72 +460,63 @@ const handleClaimMatching = async () => {
                   </div>
                 </div>
                 <div className="col-lg-12">
-                 <div className="border-box-style mt-3 bg-gradient-blue">
-  <div className="border-box-style-body earning_details">
-    
-    <div className="sol_earning_amount mb-2 bg-gradient-golden">
-      <h4>{(todayEarning || 0).toFixed(4)} SOL</h4>
-      <small> Today Earning</small>
-    </div>
+                  <div className="border-box-style mt-3 bg-gradient-blue">
+                    <div className="border-box-style-body earning_details">
+                      <div className="sol_earning_amount mb-2 bg-gradient-golden">
+                        <h4>{todayEarning.toFixed(4)} SOL</h4>
+                        <small> Today Earning</small>
+                      </div>
+                      <table className="table">
+                        <tbody>
+                          <tr>
+                            <td className="text-start">LPP Program Reward </td>
+                            <td className="">{incomeData.sponsor.today.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Power Multiplier</td>
+                            <td className="">{incomeData.direct.today.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Direct Kick Bonus</td>
+                            <td className="">{incomeData.pool.today.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Team Starter Bonus</td>
+                            <td className="">{incomeData.matching.today.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Down Ladder Bonus</td>
+                            <td className="">{incomeData.level.today.toFixed(4)} SOL</td>
+                          </tr>
+                          <tr>
+                            <td className="text-start">Up Ladder Bonus </td>
+                            <td className="">{incomeData.silver.today.toFixed(4)} SOL</td>
+                          </tr>
 
-    <table className="table">
-      <tbody>
+ <tr>
+                        <td className="text-start">Leadership Bonus </td>
+                        <td className="">$0.1425</td>
+                      </tr>
 
-        <tr>
-          <td className="text-start">LPP Program Reward </td>
-          <td>0.0000 SOL</td>
-        </tr>
+                      <tr>
+                        <td className="text-start">Boss Reward </td>
+                        <td className="">$1.0012</td>
+                      </tr>
+                      <tr>
+                        <td className="text-start">Meme-Pool Reward </td>
+                        <td className="">$0.1242</td>
+                      </tr>
+                      <tr>
+                        <td className="text-start">Big Wish Reward </td>
+                        <td className="">$0.3452</td>
+                      </tr>
 
-        <tr>
-          <td className="text-start">Power Multiplier</td>
-          <td>{(userData?.multiplier ?? 0)}X</td>
-        </tr>
 
-        <tr>
-          <td className="text-start">Direct Kick Bonus</td>
-          <td>0.0000 SOL</td>
-        </tr>
+                        </tbody>
+                      </table>
 
-        <tr>
-          <td className="text-start">Team Starter Bonus</td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-        <tr>
-          <td className="text-start">Down Ladder Bonus</td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-        <tr>
-          <td className="text-start">Up Ladder Bonus </td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-        <tr>
-          <td className="text-start">Leadership Bonus </td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-        <tr>
-          <td className="text-start">Boss Reward </td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-        <tr>
-          <td className="text-start">Meme-Pool Reward </td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-        <tr>
-          <td className="text-start">Big Wish Reward </td>
-          <td>0.0000 SOL</td>
-        </tr>
-
-      </tbody>
-    </table>
-
-  </div>
-</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

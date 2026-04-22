@@ -21,244 +21,183 @@ function Register() {
     }
   }, [ref]);
 
-  //   const handleRegister = async () => {
+  
+//   const handleRegister = async () => {
+// console.log("Selected country:", country);
+//     try {
 
-  //     if (!wallet) {
-  //       notifyError("Wallet not connected");
-  //       return;
-  //     }
-  //   let connectedWallet = wallet;
+//       let connectedWallet = wallet;
 
+//       if (!connectedWallet) {
+//         connectedWallet = await connect();
+//       }
 
-  //   if (!connectedWallet) {
+//       if (!connectedWallet) {
+//         notifyError("Wallet not connected");
+//         return;
+//       }
 
-  //     try {
-  //       connectedWallet = await connect();
+//       if (!sponsor || sponsor.trim() === "") {
+//         notifyError("Invitation Code required");
+//         return;
+//       }
 
-  //       if (!connectedWallet) {
-  //         notifyError("Wallet not connected");
-  //         return;
-  //       }
+//       // check registration
+//       const registered = await checkUserRegistered(connectedWallet);
 
-  //     } catch (err) {
-  //       notifyError("Wallet connection failed");
-  //       return;
-  //     }
+//       if (registered) {
 
-  //   }
+//         notifySuccess("Wallet already registered");
 
+//         localStorage.setItem("wallet_login", "true");
 
-  //     if (!sponsor || sponsor.trim() === "") {
-  //       notifyError("Invitation Code is required");
-  //       return;
-  //     }
+//         navigate("/dashboard");
 
-  //     const confirmRegister = window.confirm(
-  //       `You are about to register with invitation code: ${sponsor}. Continue?`
-  //     );
+//         return;
 
-  //     if (!confirmRegister) return;
-  //     try {
-  //       const registered = await checkUserRegistered(wallet);
-  //       if (registered) {
-  //         notifySuccess("Wallet already registered!");
-  // localStorage.setItem("wallet_login", "true");
-  //         setTimeout(() => navigate("/dashboard"), 1500);
-  //         return;
-  //       }
+//       }
 
-  //       await registerUser(wallet, sponsor);
-  //       notifySuccess("Registration successful!");
-  //       setTimeout(() => navigate("/dashboard"), 1500);
+//       await registerUser(
+//         new PublicKey(connectedWallet),
+//         new PublicKey(sponsor)
+//       );
+// localStorage.setItem("country", country);
+//       notifySuccess("Registration successful");
 
-  //     } catch (err) {
-  //       console.error(err);
-  //       notifyError("Registration failed");
-  //     }
+//       localStorage.setItem("wallet_login", "true");
 
-  //   };
+//       setTimeout(() => navigate("/dashboard"), 1500);
 
+//     } catch (err: any) {
 
-  // const handleRegister = async () => {
+//       console.error(err);
 
-  //   let connectedWallet = wallet;
+//       notifyError(err.message || "Registration failed");
 
+//     }
 
-  //   if (!connectedWallet) {
+//   };
 
-  //     try {
-  //       connectedWallet = await connect();
 
-  //       if (!connectedWallet) {
-  //         notifyError("Wallet not connected");
-  //         return;
-  //       }
+// const handleRegister = async () => {
+//   try {
+//     let connectedWallet = wallet;
 
-  //     } catch (err) {
-  //       notifyError("Wallet connection failed");
-  //       return;
-  //     }
+//     if (!connectedWallet) {
+//       connectedWallet = await connect();
+//     }
 
-  //   }
+//     if (!connectedWallet) {
+//       notifyError("Wallet not connected");
+//       return;
+//     }
 
-  //   if (!sponsor || sponsor.trim() === "") {
-  //     notifyError("Invitation Code is required");
-  //     return;
-  //   }
+//     if (!sponsor || sponsor.trim() === "") {
+//       notifyError("Invitation Code required");
+//       return;
+//     }
 
-  //   const confirmRegister = window.confirm(
-  //     `You are about to register with invitation code: ${sponsor}. Continue?`
-  //   );
+//     // check already registered
+//     const registered = await checkUserRegistered(connectedWallet);
 
-  //   if (!confirmRegister) return;
+//     if (registered) {
+//       notifySuccess("Already registered");
+//       navigate("/dashboard");
+//       return;
+//     }
 
-  //   try {
+//     // 🔥 CALL REGISTER
+//     await registerUser(
+//       new PublicKey(connectedWallet),
+//       new PublicKey(sponsor)
+//     );
 
-  //     const registered = await checkUserRegistered(connectedWallet);
+//     notifySuccess("Registration successful");
 
-  //     if (registered) {
+//     localStorage.setItem("wallet_login", "true");
 
-  //       notifySuccess("Wallet already registered!");
+//     navigate("/dashboard");
 
-  //       localStorage.setItem("wallet_login", "true");
+//   } catch (err: any) {
+//     console.error(err);
+//     notifyError(err.message || "Registration failed");
+//   }
+// };
 
-  //       setTimeout(() => navigate("/dashboard"), 1500);
+const [loading, setLoading] = useState(false);
 
-  //       return;
-  //     }
+const handleRegister = async () => {
+  if (loading) return; // ❌ multiple click रोकना
 
-  //     await registerUser(connectedWallet, sponsor);
+  setLoading(true);
 
-  //     notifySuccess("Registration successful!");
-  //       localStorage.setItem("wallet_login", "true");
-  //     setTimeout(() => navigate("/dashboard"), 1500);
+  try {
+    let connectedWallet = wallet;
 
-  //   } catch (err) {
-
-  //     console.error(err);
-
-  //     notifyError("Registration failed");
-
-  //   }
-
-  // };
-
-
-
-  // const handleRegister = async () => {
-
-  //   let connectedWallet = wallet;
-
-  //   if (!connectedWallet) {
-
-  //     try {
-  //       connectedWallet = await connect();
-  //     } catch {
-  //       notifyError("Wallet connection failed");
-  //       return;
-  //     }
-
-  //   }
-
-  //   if (!connectedWallet) {
-  //     notifyError("Wallet not connected");
-  //     return;
-  //   }
-
-  //   if (!sponsor || sponsor.trim() === "") {
-  //     notifyError("Invitation Code is required");
-  //     return;
-  //   }
-
-  //   try {
-
-  //     const registered = await checkUserRegistered(connectedWallet);
-
-  //     if (registered) {
-
-  //       notifySuccess("Wallet already registered!");
-
-  //       localStorage.setItem("wallet_login", "true");
-
-  //       setTimeout(() => navigate("/dashboard"), 1500);
-
-  //       return;
-  //     }
-
-  //     await registerUser(connectedWallet, sponsor, true); // LEFT
-
-  //     notifySuccess("Registration successful!");
-  //       // localStorage.setItem("wallet_login", "true");
-
-  //     setTimeout(() => navigate("/dashboard"), 1500);
-
-  //   } catch (err) {
-
-  //     console.error(err);
-
-  //     notifyError("Registration failed");
-
-  //   }
-
-  // };
-
-
-
-  const handleRegister = async () => {
-console.log("Selected country:", country);
-    try {
-
-      let connectedWallet = wallet;
-
-      if (!connectedWallet) {
-        connectedWallet = await connect();
-      }
-
-      if (!connectedWallet) {
-        notifyError("Wallet not connected");
-        return;
-      }
-
-      if (!sponsor || sponsor.trim() === "") {
-        notifyError("Invitation Code required");
-        return;
-      }
-
-      // check registration
-      const registered = await checkUserRegistered(connectedWallet);
-
-      if (registered) {
-
-        notifySuccess("Wallet already registered");
-
-        localStorage.setItem("wallet_login", "true");
-
-        navigate("/dashboard");
-
-        return;
-
-      }
-
-      await registerUser(
-        new PublicKey(connectedWallet),
-        new PublicKey(sponsor)
-      );
-localStorage.setItem("country", country);
-      notifySuccess("Registration successful");
-
-      localStorage.setItem("wallet_login", "true");
-
-      setTimeout(() => navigate("/dashboard"), 1500);
-
-    } catch (err: any) {
-
-      console.error(err);
-
-      notifyError(err.message || "Registration failed");
-
+    if (!connectedWallet) {
+      connectedWallet = await connect();
     }
 
-  };
+    if (!connectedWallet) {
+      notifyError("Wallet not connected");
+      return;
+    }
+
+    if (!sponsor || sponsor.trim() === "") {
+      notifyError("Invitation Code required");
+      return;
+    }
+
+    // ✅ पहले check करो
+    const registered = await checkUserRegistered(connectedWallet);
+
+    if (registered) {
+      notifyError("Already Registered ❌");
+      localStorage.setItem("wallet_login", "true");
+      navigate("/dashboard");
+      return;
+    }
+
+    // ✅ register call
+    const tx = await registerUser(
+      new PublicKey(connectedWallet),
+      new PublicKey(sponsor)
+    );
+
+    console.log("TX:", tx);
+
+const registeredNow = await checkUserRegistered(connectedWallet);
+
+if (registeredNow) {
+  notifySuccess("Registration successful ✅");
+    localStorage.setItem("wallet_login", "true");
+
+  navigate("/dashboard");
+  return;
+}
+
+    // notifySuccess("Registration successful ✅");
+
+    // localStorage.setItem("wallet_login", "true");
+
+    // setTimeout(() => navigate("/dashboard"), 1500);
+
+  } catch (err: any) {
+
+    console.error("FULL ERROR:", err);
+
+    // 🔥 REAL LOGS निकालो
+    if (err?.getLogs) {
+      const logs = await err.getLogs();
+      console.log("Program Logs:", logs);
+    }
+
+    notifyError(err.message || "Registration failed");
+
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <>
 
@@ -306,14 +245,9 @@ localStorage.setItem("country", country);
                 </div>
               </div>
               <div className="mb-3">
-                {/* <a href="#" className="btn btn-primary d-block" onClick={(e) => {
-                  e.preventDefault();
-                  handleRegister();
-                }}>
-                  Register Now
-                </a> */}
+         
 
-                <a
+                {/* <a
                   href="#"
                   className="btn btn-primary d-block"
                   onClick={(e) => {
@@ -322,7 +256,19 @@ localStorage.setItem("country", country);
                   }}
                 >
                   Register Now
-                </a>
+                </a> */}
+
+<a
+  href="#"
+  className={`btn btn-primary d-block ${loading ? "disabled" : ""}`}
+  onClick={(e) => {
+    e.preventDefault();
+    handleRegister();
+  }}
+>
+  {loading ? "Processing..." : "Register Now"}
+</a>
+
 
               </div>
               <div className="text-center  text-white">

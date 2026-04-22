@@ -1,194 +1,156 @@
 {
     "version": "0.1.0",
-    "name": "bullbnb_anchor",
+    "name": "warrior_income",
     "instructions": [
         {
             "name": "initialize",
             "accounts": [
                 {
-                    "name": "owner",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "global",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "adminUser",
+                    "name": "state",
                     "isMut": true,
                     "isSigner": false
                 },
                 {
-                    "name": "feeReceiver",
-                    "isMut": false,
-                    "isSigner": false
-                },
-                {
-                    "name": "systemProgram",
-                    "isMut": false,
-                    "isSigner": false
-                },
-                {
-                    "name": "vault",
-                    "isMut": true,
-                    "isSigner": false
-                }
-            ],
-            "args": [
-                {
-                    "name": "adminUserId",
-                    "type": "u64"
-                }
-            ]
-        },
-        {
-            "name": "register",
-            "accounts": [
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "user",
+                    "name": "rootUser",
                     "isMut": true,
                     "isSigner": false
                 },
-                {
-                    "name": "sponsorUser",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "uplineUser",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "global",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "systemProgram",
-                    "isMut": false,
-                    "isSigner": false
-                }
-            ],
-            "args": [
-                {
-                    "name": "isLeft",
-                    "type": "bool"
-                }
-            ]
-        },
-        {
-            "name": "upgrade",
-            "accounts": [
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "user",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "sponsorUser",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "sponsorWallet",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "global",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "vault",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "owner",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "systemProgram",
-                    "isMut": false,
-                    "isSigner": false
-                }
-            ],
-            "args": [
-                {
-                    "name": "newPackage",
-                    "type": "u8"
-                },
-                {
-                    "name": "referrerCount",
-                    "type": "u8"
-                },
-                {
-                    "name": "uplineCount",
-                    "type": "u8"
-                }
-            ]
-        },
-        {
-            "name": "claimMatchingBonus",
-            "accounts": [
-                {
-                    "name": "signer",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "user",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "global",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "vault",
-                    "isMut": true,
-                    "isSigner": false
-                },
-                {
-                    "name": "systemProgram",
-                    "isMut": false,
-                    "isSigner": false
-                }
-            ],
-            "args": []
-        },
-        {
-            "name": "distributeGlobalBonus",
-            "accounts": [
                 {
                     "name": "admin",
                     "isMut": true,
                     "isSigner": true
                 },
                 {
-                    "name": "global",
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "register",
+            "accounts": [
+                {
+                    "name": "user",
                     "isMut": true,
                     "isSigner": false
                 },
                 {
-                    "name": "vault",
+                    "name": "state",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "referrer",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "signer",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "referrer",
+                    "type": "publicKey"
+                }
+            ]
+        },
+        {
+            "name": "deposit",
+            "accounts": [
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "referrer",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "state",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "from",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "to",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authority",
+                    "isMut": false,
+                    "isSigner": true
+                },
+                {
+                    "name": "tokenProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "amount",
+                    "type": "u64"
+                },
+                {
+                    "name": "isFinal",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "claimRoi",
+            "accounts": [
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authority",
+                    "isMut": false,
+                    "isSigner": true
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "claimLeadershipBonus",
+            "accounts": [
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authority",
+                    "isMut": false,
+                    "isSigner": true
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "distributeBossPool",
+            "accounts": [
+                {
+                    "name": "state",
                     "isMut": true,
                     "isSigner": false
                 }
@@ -196,21 +158,36 @@
             "args": []
         },
         {
-            "name": "withdrawVault",
+            "name": "withdraw",
             "accounts": [
                 {
-                    "name": "owner",
-                    "isMut": true,
-                    "isSigner": true
-                },
-                {
-                    "name": "global",
+                    "name": "user",
                     "isMut": true,
                     "isSigner": false
                 },
                 {
-                    "name": "vault",
+                    "name": "state",
                     "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "from",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "to",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authority",
+                    "isMut": false,
+                    "isSigner": true
+                },
+                {
+                    "name": "tokenProgram",
+                    "isMut": false,
                     "isSigner": false
                 }
             ],
@@ -220,24 +197,27 @@
                     "type": "u64"
                 }
             ]
+        },
+        {
+            "name": "distributeMemePool",
+            "accounts": [
+                {
+                    "name": "state",
+                    "isMut": true,
+                    "isSigner": false
+                }
+            ],
+            "args": []
         }
     ],
     "accounts": [
         {
-            "name": "GlobalState",
+            "name": "State",
             "type": {
                 "kind": "struct",
                 "fields": [
                     {
-                        "name": "owner",
-                        "type": "publicKey"
-                    },
-                    {
-                        "name": "adminUser",
-                        "type": "publicKey"
-                    },
-                    {
-                        "name": "feeReceiver",
+                        "name": "admin",
                         "type": "publicKey"
                     },
                     {
@@ -245,58 +225,18 @@
                         "type": "u64"
                     },
                     {
-                        "name": "startTime",
-                        "type": "i64"
-                    },
-                    {
-                        "name": "todayPointValue",
+                        "name": "bossPool",
                         "type": "u64"
                     },
                     {
-                        "name": "poolCalculated",
-                        "type": "bool"
-                    },
-                    {
-                        "name": "todayTotalVolume",
+                        "name": "memePool",
                         "type": "u64"
-                    },
-                    {
-                        "name": "todayTotalPoints",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "todayPool",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "lastDay",
-                        "type": "i64"
-                    },
-                    {
-                        "name": "vaultBump",
-                        "type": "u8"
-                    },
-                    {
-                        "name": "matchingBalance",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "globalBalance",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "liquidityBalance",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "lastGlobalDistribution",
-                        "type": "i64"
                     }
                 ]
             }
         },
         {
-            "name": "UserAccount",
+            "name": "User",
             "type": {
                 "kind": "struct",
                 "fields": [
@@ -313,169 +253,138 @@
                         "type": "publicKey"
                     },
                     {
-                        "name": "upline",
-                        "type": "publicKey"
-                    },
-                    {
-                        "name": "left",
-                        "type": "publicKey"
-                    },
-                    {
-                        "name": "right",
-                        "type": "publicKey"
-                    },
-                    {
-                        "name": "leftVolume",
+                        "name": "totalDeposit",
                         "type": "u64"
-                    },
-                    {
-                        "name": "rightVolume",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "carryLeft",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "carryRight",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "rank",
-                        "type": {
-                            "defined": "Rank"
-                        }
-                    },
-                    {
-                        "name": "dailyMatchingIncome",
-                        "type": "u64"
-                    },
-                    {
-                        "name": "lastMatchingDay",
-                        "type": "i64"
-                    },
-                    {
-                        "name": "currentPackage",
-                        "type": "u8"
-                    },
-                    {
-                        "name": "partnerCount",
-                        "type": "u8"
-                    },
-                    {
-                        "name": "totalMatrixTeam",
-                        "type": "u32"
-                    },
-                    {
-                        "name": "directUsers",
-                        "type": {
-                            "vec": "publicKey"
-                        }
-                    },
-                    {
-                        "name": "exists",
-                        "type": "bool"
                     },
                     {
                         "name": "totalIncome",
                         "type": "u64"
                     },
                     {
-                        "name": "partnerSponsorBonus",
+                        "name": "preLpp",
                         "type": "u64"
                     },
                     {
-                        "name": "partnerDirectKickBonus",
+                        "name": "finalLpp",
                         "type": "u64"
                     },
                     {
-                        "name": "partnerLevelBonus",
+                        "name": "directIncome",
                         "type": "u64"
                     },
                     {
-                        "name": "poolLevelIncome",
+                        "name": "teamIncome",
                         "type": "u64"
                     },
                     {
-                        "name": "lapsIncome",
+                        "name": "upIncome",
                         "type": "u64"
                     },
                     {
-                        "name": "silverDirects",
+                        "name": "downIncome",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "directCount",
+                        "type": "u32"
+                    },
+                    {
+                        "name": "activeDirectCount",
                         "type": "u8"
                     },
                     {
-                        "name": "globalSilverIncome",
+                        "name": "directVolume",
                         "type": "u64"
                     },
                     {
-                        "name": "globalBonus",
+                        "name": "teamVolume",
                         "type": "u64"
                     },
                     {
-                        "name": "bump",
+                        "name": "teamFinallppVolume",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "teamPrelppVolume",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "multiplier",
                         "type": "u8"
+                    },
+                    {
+                        "name": "maxPayout",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "rank",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "strongestLeg",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "secondLeg",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "createdAt",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "exists",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "investments",
+                        "type": {
+                            "vec": {
+                                "defined": "Investment"
+                            }
+                        }
+                    },
+                    {
+                        "name": "lastBonusClaim",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "monthlyBonusEarned",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "leadershipRank",
+                        "type": "u64"
                     }
                 ]
-            }
-        },
-        {
-            "name": "Vault",
-            "type": {
-                "kind": "struct",
-                "fields": []
             }
         }
     ],
     "types": [
         {
-            "name": "BonusType",
+            "name": "Investment",
             "type": {
-                "kind": "enum",
-                "variants": [
+                "kind": "struct",
+                "fields": [
                     {
-                        "name": "Sponsor"
+                        "name": "amount",
+                        "type": "u64"
                     },
                     {
-                        "name": "DirectKick"
+                        "name": "startTime",
+                        "type": "i64"
                     },
                     {
-                        "name": "Level"
+                        "name": "lastClaim",
+                        "type": "i64"
                     },
                     {
-                        "name": "Pool"
+                        "name": "totalRoi",
+                        "type": "u64"
                     },
                     {
-                        "name": "Matching"
-                    },
-                    {
-                        "name": "Laps"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "Rank",
-            "type": {
-                "kind": "enum",
-                "variants": [
-                    {
-                        "name": "None"
-                    },
-                    {
-                        "name": "Silver"
-                    },
-                    {
-                        "name": "Gold"
-                    },
-                    {
-                        "name": "Platinum"
-                    },
-                    {
-                        "name": "Sapphire"
-                    },
-                    {
-                        "name": "Diamond"
+                        "name": "packageType",
+                        "type": "u8"
                     }
                 ]
             }
@@ -483,41 +392,11 @@
     ],
     "events": [
         {
-            "name": "RegisterEvent",
+            "name": "DepositEvent",
             "fields": [
                 {
                     "name": "user",
                     "type": "publicKey",
-                    "index": false
-                },
-                {
-                    "name": "referrer",
-                    "type": "publicKey",
-                    "index": false
-                },
-                {
-                    "name": "userId",
-                    "type": "u64",
-                    "index": false
-                },
-                {
-                    "name": "timestamp",
-                    "type": "i64",
-                    "index": false
-                }
-            ]
-        },
-        {
-            "name": "UpgradeEvent",
-            "fields": [
-                {
-                    "name": "user",
-                    "type": "publicKey",
-                    "index": false
-                },
-                {
-                    "name": "package",
-                    "type": "u8",
                     "index": false
                 },
                 {
@@ -526,30 +405,23 @@
                     "index": false
                 },
                 {
-                    "name": "timestamp",
-                    "type": "i64",
+                    "name": "netAmount",
+                    "type": "u64",
+                    "index": false
+                },
+                {
+                    "name": "isFinal",
+                    "type": "bool",
                     "index": false
                 }
             ]
         },
         {
-            "name": "IncomeEvent",
+            "name": "WithdrawEvent",
             "fields": [
                 {
                     "name": "user",
                     "type": "publicKey",
-                    "index": false
-                },
-                {
-                    "name": "from",
-                    "type": "publicKey",
-                    "index": false
-                },
-                {
-                    "name": "incomeType",
-                    "type": {
-                        "defined": "BonusType"
-                    },
                     "index": false
                 },
                 {
@@ -558,18 +430,8 @@
                     "index": false
                 },
                 {
-                    "name": "package",
-                    "type": "u8",
-                    "index": false
-                },
-                {
-                    "name": "timestamp",
-                    "type": "i64",
-                    "index": false
-                },
-                {
-                    "name": "addon",
-                    "type": "u8",
+                    "name": "net",
+                    "type": "u64",
                     "index": false
                 }
             ]
@@ -578,78 +440,73 @@
     "errors": [
         {
             "code": 6000,
-            "name": "AlreadyRegistered",
-            "msg": "User already registered"
+            "name": "InvalidAmount",
+            "msg": "Invalid amount"
         },
         {
             "code": 6001,
-            "name": "InvalidPackage",
-            "msg": "Invalid package"
+            "name": "InsufficientBalance",
+            "msg": "Insufficient balance"
         },
         {
             "code": 6002,
-            "name": "InvalidUpline",
-            "msg": "Invalid upline chain"
+            "name": "InvalidUser",
+            "msg": "Invalid user"
         },
         {
             "code": 6003,
-            "name": "InsufficientVault",
-            "msg": "Insufficient vault balance"
+            "name": "MaxPayoutReached",
+            "msg": "Max payout reached"
         },
         {
             "code": 6004,
-            "name": "InvalidRemainingAccounts",
-            "msg": "Invalid remaining accounts"
+            "name": "PreLppAlreadyTaken",
+            "msg": "Pre LPP already purchased"
         },
         {
             "code": 6005,
+            "name": "InvalidPreLppAmount",
+            "msg": "Invalid Pre LPP amount (10 - 100)"
+        },
+        {
+            "code": 6006,
+            "name": "InvalidFinalLppAmount",
+            "msg": "Invalid Final LPP amount (101 - 5000)"
+        },
+        {
+            "code": 6007,
             "name": "InvalidSponsor",
             "msg": "Invalid sponsor"
         },
         {
-            "code": 6006,
-            "name": "MathOverflow",
-            "msg": "Math overflow"
-        },
-        {
-            "code": 6007,
-            "name": "NotQualified",
-            "msg": "Not qualified for matching bonus"
-        },
-        {
             "code": 6008,
-            "name": "NoMatchingPoints",
-            "msg": "No matching points available"
+            "name": "CannotReferSelf",
+            "msg": "Refferr Not Accepted"
         },
         {
             "code": 6009,
-            "name": "DailyLimitReached",
-            "msg": "Daily income limit reached"
+            "name": "AlreadyRegistered",
+            "msg": "Already Registered"
         },
         {
             "code": 6010,
-            "name": "Unauthorized",
-            "msg": "Unauthorized access"
+            "name": "UserNotRegistered",
+            "msg": "User Not Registered"
         },
         {
             "code": 6011,
-            "name": "PositionFilled",
-            "msg": "Position Invalid"
+            "name": "NoReward",
+            "msg": "No ROI available"
         },
         {
             "code": 6012,
-            "name": "TooManyDirectUsers",
-            "msg": "TooManyDirectUsers"
+            "name": "AlreadyInitialized",
+            "msg": "Already Initialized"
         },
         {
             "code": 6013,
-            "name": "TooEarly",
-            "msg": "Too early for distribution"
-        },
-        {
-            "code": 6014,
-            "name": "NoUsers",
-            "msg": "No users in global pool"
+            "name": "MathOverflow",
+            "msg": "Math Overflow"
         }
     ]
 }

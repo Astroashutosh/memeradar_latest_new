@@ -6,22 +6,6 @@ import { PROGRAM_ID, connection, globalPda, vaultPda, ZERO, baseurl } from "./co
 import { getProgram } from "./anchor";
 import type { AnchorUserAccount } from "./types";
 
-
-import {
-  getAssociatedTokenAddressSync,
-  createAssociatedTokenAccountInstruction,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-
-
-// =============================
-// CONSTANTS
-// =============================
-const MINT = new PublicKey("FmgQLbExtD5RrHdgvM1tnenjAnFZ354oC3z89vqKnPWK");
-// const ZERO = new PublicKey("11111111111111111111111111111111");
-
-
-
 export const packages = [
   { id: 1, name: "Starter", price: 0.2 },
   { id: 2, name: "Advisor", price: 0.25 },
@@ -189,6 +173,143 @@ export const handleProgramEvents = async (tx: string, program: any) => {
 // api call end 
 
 
+export const registerUser = async (
+  wallet: PublicKey,
+  sponsorWallet: PublicKey
+) => {
+
+  const program = getProgram();
+
+  const userPda = getUserPda(wallet.toBase58());
+  const sponsorPda = getUserPda(sponsorWallet.toBase58());
+  // console.log("User PDA:", userPda.toBase58());
+  // console.log("Sponsor PDA:", sponsorPda.toBase58());
+
+  const sponsorUser: any =
+    await program.account.userAccount.fetch(sponsorPda);
+
+  if (!sponsorUser.exists) {
+    throw new Error("Invalid Sponsor");
+  }
+
+  const ZERO = PublicKey.default;
+
+  // -----------------------------
+  // BFS MATRIX SEARCH
+  // -----------------------------
+
+  const queue: PublicKey[] = [sponsorWallet];
+
+  let uplineWallet: PublicKey | null = null;
+  let isLeft = true;
+
+  while (queue.length > 0) {
+
+    const current = queue.shift()!;
+
+    const currentPda = getUserPda(current.toBase58());
+
+    const userData: any =
+      await program.account.userAccount.fetch(currentPda);
+
+    const left = userData.left;
+    const right = userData.right;
+
+    if (left.equals(ZERO)) {
+
+      uplineWallet = current;
+      isLeft = true;
+      break;
+
+    }
+
+    if (right.equals(ZERO)) {
+
+      uplineWallet = current;
+      isLeft = false;
+      break;
+
+    }
+
+    queue.push(left);
+    queue.push(right);
+
+  }
+
+  if (!uplineWallet) {
+    throw new Error("Matrix full");
+  }
+
+  const uplinePda = getUserPda(uplineWallet.toBase58());
+
+  // console.log("Chosen Upline:", uplineWallet.toBase58());
+  // console.log("Position:", isLeft ? "LEFT" : "RIGHT");
+
+  // -----------------------------
+  // BUILD REMAINING ACCOUNTS
+  // -----------------------------
+
+  const remainingAccounts: any[] = [];
+
+  let currentUpline = uplineWallet;
+
+  for (let i = 0; i < 10; i++) {
+
+    if (currentUpline.equals(ZERO)) break;
+
+    const uplineUserPda =
+      getUserPda(currentUpline.toBase58());
+
+    try {
+
+      const upline: any =
+        await program.account.userAccount.fetch(uplineUserPda);
+
+      remainingAccounts.push({
+        pubkey: uplineUserPda,
+        isWritable: true,
+        isSigner: false,
+      });
+
+      currentUpline = upline.upline;
+
+    } catch {
+
+      break;
+
+    }
+
+  }
+
+  // -----------------------------
+  // SEND TRANSACTION
+  // -----------------------------
+
+  const tx = await program.methods
+    .register(isLeft)
+    .accounts({
+      signer: wallet,
+      user: userPda,
+      sponsorUser: sponsorPda,
+      uplineUser: uplinePda,
+      global: globalPda,
+      systemProgram: SystemProgram.programId
+    })
+    .remainingAccounts(remainingAccounts)
+    .rpc();
+
+  // console.log("Register TX:", tx);
+
+  await handleProgramEvents(tx, program);
+
+  return tx;
+
+};
+
+
+
+
+
 // export const registerUser = async (
 //   wallet: PublicKey,
 //   sponsorWallet: PublicKey
@@ -198,8 +319,6 @@ export const handleProgramEvents = async (tx: string, program: any) => {
 
 //   const userPda = getUserPda(wallet.toBase58());
 //   const sponsorPda = getUserPda(sponsorWallet.toBase58());
-//   // console.log("User PDA:", userPda.toBase58());
-//   // console.log("Sponsor PDA:", sponsorPda.toBase58());
 
 //   const sponsorUser: any =
 //     await program.account.userAccount.fetch(sponsorPda);
@@ -232,19 +351,15 @@ export const handleProgramEvents = async (tx: string, program: any) => {
 //     const right = userData.right;
 
 //     if (left.equals(ZERO)) {
-
 //       uplineWallet = current;
 //       isLeft = true;
 //       break;
-
 //     }
 
 //     if (right.equals(ZERO)) {
-
 //       uplineWallet = current;
 //       isLeft = false;
 //       break;
-
 //     }
 
 //     queue.push(left);
@@ -257,9 +372,6 @@ export const handleProgramEvents = async (tx: string, program: any) => {
 //   }
 
 //   const uplinePda = getUserPda(uplineWallet.toBase58());
-
-//   // console.log("Chosen Upline:", uplineWallet.toBase58());
-//   // console.log("Position:", isLeft ? "LEFT" : "RIGHT");
 
 //   // -----------------------------
 //   // BUILD REMAINING ACCOUNTS
@@ -290,9 +402,7 @@ export const handleProgramEvents = async (tx: string, program: any) => {
 //       currentUpline = upline.upline;
 
 //     } catch {
-
 //       break;
-
 //     }
 
 //   }
@@ -314,118 +424,185 @@ export const handleProgramEvents = async (tx: string, program: any) => {
 //     .remainingAccounts(remainingAccounts)
 //     .rpc();
 
-//   // console.log("Register TX:", tx);
-
-//   await handleProgramEvents(tx, program);
-
-//   return tx;
-
-// };
-
-
-// export const registerUser = async (
-//   wallet: PublicKey,
-//   referrerWallet: PublicKey
-// ) => {
-//   const program = getProgram();
-
-//   const userPda = getUserPda(wallet.toBase58());
-//   const referrerPda = getUserPda(referrerWallet.toBase58());
-
-//   const [statePda] = PublicKey.findProgramAddressSync(
-//     [Buffer.from("state")],
-//     program.programId
-//   );
-
-//   // ✅ FIXED LINE
-//   const referrerAccount = await program.account.userAccount.fetch(referrerPda);
-
-//   if (!referrerAccount.exists) {
-//     throw new Error("Invalid Sponsor");
-//   }
-
-//   const tx = await program.methods
-//     .register(referrerWallet)
-//     .accounts({
-//       user: userPda,
-//       state: statePda,
-//       referrer: referrerPda,
-//       signer: wallet,
-//       systemProgram: SystemProgram.programId,
-//     })
-//     .rpc();
-
 //   console.log("Register TX:", tx);
 
+//   // ✅ WAIT FOR CONFIRMATION
+//   await connection.confirmTransaction(tx, "confirmed");
+
+//   // -----------------------------
+//   // FETCH TX
+//   // -----------------------------
+
+//   const txInfo = await connection.getTransaction(tx, {
+//     commitment: "confirmed",
+//     maxSupportedTransactionVersion: 0
+//   });
+
+//   if (!txInfo?.meta?.logMessages) return tx;
+
+//   // -----------------------------
+//   // DECODE EVENTS
+//   // -----------------------------
+
+//   for (const log of txInfo.meta.logMessages) {
+
+//     if (!log.startsWith("Program data:")) continue;
+
+//     try {
+
+//       const base64 = log.replace("Program data: ", "");
+
+//       const event = program.coder.events.decode(base64);
+
+//       if (event?.name === "RegisterEvent") {
+
+//         const data = event.data;
+
+//         console.log("Register Event:", data);
+
+//         await fetch(
+//           `${baseurl}report_api/api.php`,
+//           {
+//             method: "POST",
+//             headers: {
+//               "Content-Type": "application/x-www-form-urlencoded"
+//             },
+//             body: new URLSearchParams({
+//               table: "register",
+//               action: "insert",
+//               user: data.user.toBase58(),
+//               referrer: data.referrer.toBase58(),
+//               user_id: data.userId.toString()
+//             })
+//           }
+//         );
+
+//       }
+
+//     } catch (err) {
+//       console.log("Event decode error", err);
+//     }
+
+//   }
+
+//   return tx;
+
+// };
+
+
+
+
+
+
+
+
+// export const upgradePackage = async (
+//   wallet: string,
+//   newPackage: number
+// ) => {
+
+//   const program = getProgram();
+
+//   const userPubkey = new PublicKey(wallet);
+//   const userPda = getUserPda(wallet);
+
+//   // -------------------------
+//   // Fetch User Account
+//   // -------------------------
+//   let userAccount: any;
+
+//   try {
+//     userAccount = await program.account.userAccount.fetch(userPda);
+//   } catch {
+//     throw new Error("User account not found. Please register first.");
+//   }
+
+//   if (!userAccount.referrer || new PublicKey(userAccount.referrer).equals(PublicKey.default)) {
+//     throw new Error("Sponsor not found for this user.");
+//   }
+
+//   const sponsorWallet = new PublicKey(userAccount.referrer.toString());
+//   const sponsorPda = getUserPda(sponsorWallet.toString());
+
+//   const globalAccount: any = await program.account.globalState.fetch(globalPda);
+//   const ownerPubkey = new PublicKey(globalAccount.owner.toString());
+
+//   const sponsorUserAccount: any =
+//     await program.account.userAccount.fetch(sponsorPda);
+
+//   const remainingAccounts: any[] = [];
+
+//   let currentUpline =
+//     sponsorUserAccount.referrer &&
+//       !new PublicKey(sponsorUserAccount.referrer).equals(PublicKey.default)
+//       ? new PublicKey(sponsorUserAccount.referrer)
+//       : null;
+
+//   const visited = new Set<string>(); // safety to prevent infinite loops
+
+//   while (currentUpline) {
+
+//     const uplinePda = getUserPda(currentUpline.toString());
+
+//     const uplineAccount: any =
+//       await program.account.userAccount.fetch(uplinePda);
+
+//     // stop if circular reference detected
+//     if (visited.has(currentUpline.toBase58())) {
+//       break;
+//     }
+
+//     visited.add(currentUpline.toBase58());
+
+//     remainingAccounts.push({
+//       pubkey: uplinePda,
+//       isWritable: true,
+//       isSigner: false,
+//     });
+
+//     remainingAccounts.push({
+//       pubkey: new PublicKey(uplineAccount.wallet),
+//       isWritable: true,
+//       isSigner: false,
+//     });
+
+//     currentUpline =
+//       uplineAccount.referrer &&
+//         !new PublicKey(uplineAccount.referrer).equals(PublicKey.default)
+//         ? new PublicKey(uplineAccount.referrer)
+//         : null;
+//   }
+
+//   console.log(
+//     "RemainingAccounts:",
+//     remainingAccounts.map(a => a.pubkey.toBase58())
+//   );
+
+//   // -------------------------
+//   // Execute Upgrade
+//   // -------------------------
+//   const tx = await program.methods
+//     .upgrade(newPackage)
+//     .accounts({
+//       signer: userPubkey,
+//       user: userPda,
+//       sponsorUser: sponsorPda,
+//       sponsorWallet: sponsorWallet,
+//       global: globalPda,
+//       vault: vaultPda,
+//       owner: ownerPubkey,
+//       systemProgram: SystemProgram.programId,
+//     })
+//     .remainingAccounts(remainingAccounts)
+//     .rpc();
+
 //   return tx;
 // };
 
-export const registerUser = async (
-  wallet: PublicKey,
-  referrerWallet: PublicKey
-) => {
-  try {
-    const program = getProgram();
 
-    const userPda = getUserPda(wallet.toBase58());
-    const referrerPda = getUserPda(referrerWallet.toBase58());
+// current rank
 
-    const [statePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("state")],
-      PROGRAM_ID
-    );
 
-    // ✅ DEBUG LOGS (VERY IMPORTANT)
-    console.log("Wallet:", wallet.toBase58());
-    console.log("Referrer Wallet:", referrerWallet.toBase58());
-    console.log("User PDA:", userPda.toBase58());
-    console.log("Referrer PDA:", referrerPda.toBase58());
-
-    // ✅ CHECK REFERRER EXISTS (IMPORTANT FIX)
-    const referrerAccount = await connection.getAccountInfo(referrerPda);
-
-    if (!referrerAccount) {
-      throw new Error("❌ Invalid Sponsor (Not Registered)");
-    }
-
-    // ❌ SELF REFERRAL BLOCK
-    if (wallet.toBase58() === referrerWallet.toBase58()) {
-      throw new Error("❌ Cannot refer yourself");
-    }
-
-    // 🚀 MAIN REGISTER CALL
-    const tx = await program.methods
-      .register(referrerWallet)
-      .accounts({
-        user: userPda,
-        state: statePda,
-        referrer: referrerPda,
-        signer: wallet,
-        systemProgram: SystemProgram.programId,
-      })
-      .rpc();
-
-    console.log("✅ Register TX:", tx);
-
-    return tx;
-
-  } catch (err: any) {
-
-  console.error("FULL ERROR:", err);
-
-  // 🔥 IMPORTANT FIX
-  if (
-    err.message?.includes("already been processed") ||
-    err.message?.includes("Transaction simulation failed")
-  ) {
-    console.log("⚠️ Tx शायद already success है, re-checking...");
-
-    return "success";
-  }
-
-  throw new Error(err.message || "Register failed");
-}
-};
 export const upgradePackage = async (wallet: string, newPackage: number) => {
   const program = getProgram();
   const userPubkey = new PublicKey(wallet);
@@ -551,101 +728,101 @@ export const RANK_NAMES: Record<number, string> = {
 };
 
 
-// export const getUserData = async (wallet: string) => {
-//   try {
-//     const program = getProgram();
-//     const userPda = getUserPda(wallet);
-//     const account = (await program.account.userAccount.fetch(userPda).catch(() => null)) as AnchorUserAccount | null;
-//     if (!account) {
-//       return null;
-//     }
+export const getUserData = async (wallet: string) => {
+  try {
+    const program = getProgram();
+    const userPda = getUserPda(wallet);
+    const account = (await program.account.userAccount.fetch(userPda).catch(() => null)) as AnchorUserAccount | null;
+    if (!account) {
+      return null;
+    }
 
-//     const defaultKey = anchor.web3.PublicKey.default.toBase58();
-//     const sponsorKey = account.referrer.toBase58();
-//     const uplineKey = account.upline.toBase58();
-//     const leftKey = account.left.toBase58();
-//     const rightKey = account.right.toBase58();
+    const defaultKey = anchor.web3.PublicKey.default.toBase58();
+    const sponsorKey = account.referrer.toBase58();
+    const uplineKey = account.upline.toBase58();
+    const leftKey = account.left.toBase58();
+    const rightKey = account.right.toBase58();
 
-//     const fetchUserId = async (walletAddress: string) => {
+    const fetchUserId = async (walletAddress: string) => {
 
-//       if (walletAddress === defaultKey) return undefined;
+      if (walletAddress === defaultKey) return undefined;
 
-//       const [pda] = anchor.web3.PublicKey.findProgramAddressSync(
-//         [Buffer.from("user"), new anchor.web3.PublicKey(walletAddress).toBuffer()],
-//         PROGRAM_ID
-//       );
+      const [pda] = anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("user"), new anchor.web3.PublicKey(walletAddress).toBuffer()],
+        PROGRAM_ID
+      );
 
-//       try {
-//         const acc: any = await program.account.userAccount.fetch(pda);
-//         // console.log(acc);
-//         return acc.id.toNumber();
-//       } catch {
-//         return undefined;
-//       }
+      try {
+        const acc: any = await program.account.userAccount.fetch(pda);
+        // console.log(acc);
+        return acc.id.toNumber();
+      } catch {
+        return undefined;
+      }
 
-//     };
+    };
 
-//     const sponsorId = await fetchUserId(sponsorKey);
-//     const uplineId = await fetchUserId(uplineKey);
-//     const leftPartnerId = await fetchUserId(leftKey);
-//     const rightPartnerId = await fetchUserId(rightKey);
+    const sponsorId = await fetchUserId(sponsorKey);
+    const uplineId = await fetchUserId(uplineKey);
+    const leftPartnerId = await fetchUserId(leftKey);
+    const rightPartnerId = await fetchUserId(rightKey);
 
-//     return {
-//       userId: account.id.toNumber(),
-//       rank: RANK_NAMES[account.rank] ?? "None",
-//       sponsor: sponsorKey === defaultKey ? "Not Assigned" : sponsorKey,
-//       sponsorId,
+    return {
+      userId: account.id.toNumber(),
+      rank: RANK_NAMES[account.rank] ?? "None",
+      sponsor: sponsorKey === defaultKey ? "Not Assigned" : sponsorKey,
+      sponsorId,
 
-//       upline: uplineKey === defaultKey ? "Not Assigned" : uplineKey,
-//       uplineId,
+      upline: uplineKey === defaultKey ? "Not Assigned" : uplineKey,
+      uplineId,
 
-//       leftPartner: leftKey === defaultKey ? "Not Assigned" : leftKey,
-//       leftPartnerId,
+      leftPartner: leftKey === defaultKey ? "Not Assigned" : leftKey,
+      leftPartnerId,
 
-//       rightPartner: rightKey === defaultKey ? "Not Assigned" : rightKey,
-//       rightPartnerId,
-//       totalIncome:
-//         account.totalIncome.toNumber() / anchor.web3.LAMPORTS_PER_SOL,
-//       sponsorIncome:
-//         account.partnerSponsorBonus.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
-//       directIncome:
-//         account.partnerDirectKickBonus.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
-//       levelIncome:
-//         account.partnerLevelBonus.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
-//       poolIncome:
-//         account.poolLevelIncome.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
-//       lapsIncome:
-//         account.lapsIncome.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
-//       leftVolume:
-//         account.leftVolume.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
-//       rightVolume:
-//         account.rightVolume.toNumber() /
-//         anchor.web3.LAMPORTS_PER_SOL,
+      rightPartner: rightKey === defaultKey ? "Not Assigned" : rightKey,
+      rightPartnerId,
+      totalIncome:
+        account.totalIncome.toNumber() / anchor.web3.LAMPORTS_PER_SOL,
+      sponsorIncome:
+        account.partnerSponsorBonus.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
+      directIncome:
+        account.partnerDirectKickBonus.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
+      levelIncome:
+        account.partnerLevelBonus.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
+      poolIncome:
+        account.poolLevelIncome.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
+      lapsIncome:
+        account.lapsIncome.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
+      leftVolume:
+        account.leftVolume.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
+      rightVolume:
+        account.rightVolume.toNumber() /
+        anchor.web3.LAMPORTS_PER_SOL,
 
-//       carryLeft:
-//         account.carryLeft.toNumber() / anchor.web3.LAMPORTS_PER_SOL,
+      carryLeft:
+        account.carryLeft.toNumber() / anchor.web3.LAMPORTS_PER_SOL,
 
-//       carryRight:
-//         account.carryRight.toNumber() / anchor.web3.LAMPORTS_PER_SOL,
+      carryRight:
+        account.carryRight.toNumber() / anchor.web3.LAMPORTS_PER_SOL,
 
-//       currentPackage: account.currentPackage,
-//       partnerCount: account.partnerCount,
-//       totalMatrixTeam: account.totalMatrixTeam,
+      currentPackage: account.currentPackage,
+      partnerCount: account.partnerCount,
+      totalMatrixTeam: account.totalMatrixTeam,
 
 
-//     };
+    };
 
-//   } catch (err) {
-//     console.error(err);
-//     return null;
-//   }
-// };
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
 
 // const getPrice = (amount : String) => {
 //   const lamportsPerSol = new BN(anchor.web3.LAMPORTS_PER_SOL);
@@ -739,241 +916,6 @@ export const RANK_NAMES: Record<number, string> = {
 //     return [];
 //   }
 // };
-
-
-
-
-// export const getUserData = async (wallet: string) => {
-//   try {
-//     const program = getProgram();
-//     const userPda = getUserPda(wallet);
-
-//     const acc: any = await program.account.user.fetch(userPda);
-//        console.log("user account data is ",acc);
-
-//     return {
-//       wallet: acc.wallet.toBase58(),
-//       // 🔥 INCOME (UI based variables)
-//       lppProgramReward: acc.directIncome.toNumber() / 1e9,
-
-//       directKickBonus: acc.teamIncome.toNumber() / 1e9,
-//       teamStarterBonus: acc.teamIncome.toNumber() / 1e9,
-
-//       downLadderBonus: acc.downIncome.toNumber() / 1e9,
-//       upLadderBonus: acc.upIncome.toNumber() / 1e9,
-
-//       leadershipBonus: Number(acc.leadershipRank || 0),
-
-//       // ⚠️ SAME VALUE (contract limitation)
-//       bossReward: acc.totalIncome.toNumber() / 1e9,
-//       memePoolReward: acc.totalIncome.toNumber() / 1e9,
-//       bigWishReward: acc.totalIncome.toNumber() / 1e9,
-
-//       // 👇 TEAM
-//       directTeam: acc.partnerCount,
-//       networkTeam: acc.partnerCount,
-
-//       // 👇 EXTRA
-//       totalIncome: acc.totalIncome.toNumber() / 1e9,
-//       totalDeposit: acc.totalDeposit.toNumber() / 1e9,
-
-//       rank: acc.rank,
-//       multiplier: acc.multiplier,
-//       maxPayout: acc.maxPayout.toNumber() / 1e9,
-
-//       exists: acc.exists,
-//     };
-
-//   } catch (err) {
-//     console.error("Dashboard error:", err);
-//     return null;
-//   }
-// };
-
-
-
-export const getUserData = async (wallet: string) => {
-  try {
-    const program = getProgram();
-    const userPda = getUserPda(wallet);
-
-    const acc: any = await program.account.user.fetch(userPda);
-    console.log("user account data is ", acc);
-console.log("PRE LPP VALUE:", acc.preLpp.toNumber());
-console.log("FINAL LPP VALUE:", acc.finalLpp.toNumber());
-//     return {
-//       // =============================
-//       // BASIC
-//       // =============================
-//       wallet: acc.wallet.toBase58(),
-//       exists: acc.exists,
-
-//       // =============================
-//       // LPP DATA (🔥 IMPORTANT)
-//       // =============================
-   
-
-//       preLpp: acc.preLpp.toNumber(),
-// finalLpp: acc.finalLpp.toNumber(),
-
-
-//       totalDeposit: acc.totalDeposit.toNumber() / 1e9,
-//       totalIncome: acc.totalIncome.toNumber() / 1e9,
-
-//       // =============================
-//       // INCOME BREAKDOWN
-//       // =============================
-//       directIncome: acc.directIncome.toNumber() / 1e9,
-//       teamIncome: acc.teamIncome.toNumber() / 1e9,
-//       upIncome: acc.upIncome.toNumber() / 1e9,
-//       downIncome: acc.downIncome.toNumber() / 1e9,
-
-//       // 👉 UI MAPPING (same naming as your UI)
-//       lppProgramReward: acc.directIncome.toNumber() / 1e9,
-//       directKickBonus: acc.teamIncome.toNumber() / 1e9,
-//       teamStarterBonus: acc.teamIncome.toNumber() / 1e9,
-//       downLadderBonus: acc.downIncome.toNumber() / 1e9,
-//       upLadderBonus: acc.upIncome.toNumber() / 1e9,
-
-//       leadershipBonus: Number(acc.leadershipRank || 0),
-// currentPackage: acc.currentPackage || 0,
-//       // ⚠️ pools (contract doesn't separate)
-//       bossReward: acc.totalIncome.toNumber() / 1e9,
-//       memePoolReward: acc.totalIncome.toNumber() / 1e9,
-//       bigWishReward: acc.totalIncome.toNumber() / 1e9,
-
-//       // =============================
-//       // TEAM DATA
-//       // =============================
-//       directTeam: acc.partnerCount,
-//       networkTeam: acc.partnerCount,
-//       directCount: acc.directCount,
-
-//       teamVolume: acc.teamVolume.toNumber() / 1e9,
-
-//       // =============================
-//       // MLM / RANK
-//       // =============================
-//       rank: acc.rank,
-//       multiplier: acc.multiplier,
-//       maxPayout: acc.maxPayout.toNumber() / 1e9,
-
-//       strongestLeg: acc.strongestLeg.toNumber() / 1e9,
-//       secondLeg: acc.secondLeg.toNumber() / 1e9,
-
-//       // =============================
-//       // BONUS TRACKING
-//       // =============================
-//       lastBonusClaim: acc.lastBonusClaim,
-//       monthlyBonusEarned: acc.monthlyBonusEarned.toNumber() / 1e9,
-
-//       // =============================
-//       // INVESTMENTS (🔥 VERY IMPORTANT)
-//       // =============================
-//       investments: acc.investments.map((inv: any) => ({
-//         amount: inv.amount.toNumber() / 1e9,
-//         startTime: inv.startTime,
-//         lastClaim: inv.lastClaim,
-//         totalRoi: inv.totalRoi.toNumber() / 1e9,
-//         packageType: inv.packageType, // 1 = PRE, 2 = FINAL
-//       })),
-//     };
-
-
-
-
-return {
-  // =============================
-  // BASIC
-  // =============================
-  wallet: acc.wallet?.toBase58?.() || "",
-  exists: acc.exists ?? false,
-
-  // =============================
-  // LPP DATA (🔥 IMPORTANT)
-  // =============================
-  preLpp: acc.preLpp?.toNumber?.() || 0,
-  finalLpp: acc.finalLpp?.toNumber?.() || 0,
-
-  totalDeposit: acc.totalDeposit?.toNumber?.() / 1e9 || 0,
-  totalIncome: acc.totalIncome?.toNumber?.() / 1e9 || 0,
-
-  // =============================
-  // INCOME BREAKDOWN
-  // =============================
-  directIncome: acc.directIncome?.toNumber?.() / 1e9 || 0,
-  teamIncome: acc.teamIncome?.toNumber?.() / 1e9 || 0,
-  upIncome: acc.upIncome?.toNumber?.() / 1e9 || 0,
-  downIncome: acc.downIncome?.toNumber?.() / 1e9 || 0,
-
-  // 👉 UI MAPPING
-  lppProgramReward: acc.directIncome?.toNumber?.() / 1e9 || 0,
-  directKickBonus: acc.directIncome?.toNumber?.() / 1e9 || 0,   // 🔥 FIX
-  teamStarterBonus: acc.teamIncome?.toNumber?.() / 1e9 || 0,
-  downLadderBonus: acc.downIncome?.toNumber?.() / 1e9 || 0,
-  upLadderBonus: acc.upIncome?.toNumber?.() / 1e9 || 0,
-
-  // =============================
-  // BONUS / EXTRA
-  // =============================
-  leadershipBonus: acc.leadershipRank?.toNumber?.() || 0,
-
-  // ⚠️ contract में currentPackage नहीं है
-  currentPackage: 0, // 🔥 FIX (safe default)
-
-  bossReward: acc.totalIncome?.toNumber?.() / 1e9 || 0,
-  memePoolReward: acc.totalIncome?.toNumber?.() / 1e9 || 0,
-  bigWishReward: acc.totalIncome?.toNumber?.() / 1e9 || 0,
-
-  // =============================
-  // TEAM DATA
-  // =============================
-  directTeam: acc.partnerCount || 0,
-  networkTeam: acc.partnerCount || 0,
-  directCount: acc.directCount || 0,
-
-  teamVolume: acc.teamVolume?.toNumber?.() / 1e9 || 0,
-
-  // =============================
-  // MLM / RANK
-  // =============================
-  rank: acc.rank || 0,
-  multiplier: acc.multiplier || 0,
-  maxPayout: acc.maxPayout?.toNumber?.() / 1e9 || 0,
-
-  strongestLeg: acc.strongestLeg?.toNumber?.() / 1e9 || 0,
-  secondLeg: acc.secondLeg?.toNumber?.() / 1e9 || 0,
-
-  // =============================
-  // BONUS TRACKING
-  // =============================
-  lastBonusClaim: acc.lastBonusClaim?.toNumber?.() || 0, // 🔥 FIX
-  monthlyBonusEarned: acc.monthlyBonusEarned?.toNumber?.() / 1e9 || 0,
-
-  // =============================
-  // INVESTMENTS (🔥 IMPORTANT)
-  // =============================
-  investments: (acc.investments || []).map((inv: any) => ({
-    amount: inv.amount?.toNumber?.() / 1e9 || 0,
-    startTime: inv.startTime?.toNumber?.() || 0, // 🔥 FIX
-    lastClaim: inv.lastClaim?.toNumber?.() || 0, // 🔥 FIX
-    totalRoi: inv.totalRoi?.toNumber?.() / 1e9 || 0,
-    packageType: inv.packageType || 0,
-  })),
-};
-
-
-
-
-  } catch (err) {
-    console.error("Dashboard error:", err);
-    return null;
-  }
-};
-
-
-
-
 
 export const getRegisterDatesBulk = async (wallets: string[]) => {
   try {
@@ -1793,221 +1735,80 @@ export const getTotalAndTodayIncome = async (wallet: string) => {
   }
 };
 
-
-
-
-
-
-
-
 export const getIncomeBreakdown = async (wallet: string) => {
-  const user = await getUserData(wallet);
-
-  return {
-    sponsor: { total: user?.lppProgramReward || 0, today: 0 },
-    direct: { total: user?.directKickBonus || 0, today: 0 },
-    pool: { total: user?.bossReward || 0, today: 0 },
-    level: { total: user?.downLadderBonus || 0, today: 0 },
-    matching: { total: user?.upLadderBonus || 0, today: 0 },
-    silver: { total: user?.leadershipBonus || 0, today: 0 },
-  };
-};
-
-
-
-
-export const deposit = async (amount: number, isFinal: boolean) => {
   try {
-    const program = getProgram();
-    const provider = program.provider as anchor.AnchorProvider;
-
-    const wallet = provider.wallet;
-    const connection = provider.connection;
-
-    // =============================
-    // PDA
-    // =============================
-    const userPda = getUserPda(wallet.publicKey.toBase58());
-
-    const [statePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("state")],
-      program.programId
-    );
-
-    const [vault] = PublicKey.findProgramAddressSync(
-      [Buffer.from("vault")],
-      program.programId
-    );
-
-    // =============================
-    // USER FETCH
-    // =============================
-    const user: any = await program.account.user.fetch(userPda);
-
-    if (!user.exists) {
-      throw new Error("❌ User not registered");
-    }
-
-    const referrerWallet = new PublicKey(user.referrer);
-    const referrerPda = getUserPda(referrerWallet.toBase58());
-
-    // =============================
-    // 🔥 CONTRACT LOGIC (IMPORTANT)
-    // =============================
-    // if (!user.preLppDone) {
-    //   // 👉 FIRST TIME → PRE LLP
-    //   if (amount < 10 || amount > 100) {
-    //     throw new Error("❌ Pre LPP: 10 - 100");
-    //   }
-    //   isFinal = false;
-    // } else {
-    //   // 👉 AFTER PRE → FINAL LLP
-    //   if (amount < 101 || amount > 5000) {
-    //     throw new Error("❌ Final LPP: 101 - 5000");
-    //   }
-    //   isFinal = true;
-    // }
-
-// =============================
-// ✅ CORRECT FLOW (FINAL FIX)
-// =============================
-const isPreDone = user.preLpp.toNumber() > 0;
-
-if (!isPreDone) {
-  if (isFinal) {
-    throw new Error("❌ You must complete PRE LPP first");
-  }
-
-  if (amount < 10 || amount > 100) {
-    throw new Error("❌ Pre LPP: 10 - 100");
-  }
-} else {
-  if (!isFinal) {
-    throw new Error("❌ Pre LPP already completed");
-  }
-
-  // ✅ FINAL UNLIMITED
-  if (amount < 101) {
-    throw new Error("❌ Final LPP minimum 101");
-  }
-}
-
-
-
-
-    // =============================
-    // ATA
-    // =============================
-    const fromAta = getAssociatedTokenAddressSync(
-      MINT,
-      wallet.publicKey
-    );
-
-    const toAta = getAssociatedTokenAddressSync(
-      MINT,
-      vault,
-      true
-    );
-
-    // =============================
-    // CREATE ATA IF NOT EXISTS
-    // =============================
-    const txInit = new anchor.web3.Transaction();
-
-    if (!(await connection.getAccountInfo(fromAta))) {
-      txInit.add(
-        createAssociatedTokenAccountInstruction(
-          wallet.publicKey,
-          fromAta,
-          wallet.publicKey,
-          MINT
-        )
-      );
-    }
-
-    if (!(await connection.getAccountInfo(toAta))) {
-      txInit.add(
-        createAssociatedTokenAccountInstruction(
-          wallet.publicKey,
-          toAta,
-          vault,
-          MINT
-        )
-      );
-    }
-
-    if (txInit.instructions.length > 0) {
-      const tx = await wallet.signTransaction(txInit);
-const sig = await connection.sendRawTransaction(tx.serialize());
-await connection.confirmTransaction(sig);
-      await connection.confirmTransaction(sig);
-    }
-
-    // =============================
-    // BUILD UPLINE
-    // =============================
-    const remainingAccounts: any[] = [];
-    let current = referrerWallet;
-
-    for (let i = 0; i < 24; i++) {
-      if (current.equals(PublicKey.default)) break;
-
-      const pda = getUserPda(current.toBase58());
-
-      try {
-        const acc: any = await program.account.user.fetch(pda);
-
-        remainingAccounts.push({
-          pubkey: pda,
-          isWritable: true,
-          isSigner: false,
-        });
-
-        current = new PublicKey(acc.referrer);
-      } catch {
-        break;
-      }
-    }
-
-    // =============================
-    // 🚀 CONTRACT CALL
-    // =============================
-    const tx = await program.methods
-      .deposit(new anchor.BN(amount), isFinal)
-      .accounts({
-        user: userPda,
-        referrer: referrerPda,
-        state: statePda,
-        from: fromAta,
-        to: toAta,
-        authority: wallet.publicKey,
-        tokenProgram: TOKEN_PROGRAM_ID,
+    const res = await fetch(`${baseurl}report_api/api.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        table: "reports",
+        action: "breakdown",
+        user: wallet
       })
-      .remainingAccounts(remainingAccounts)
-      .rpc();
+    });
 
-    console.log("✅ Deposit Success:", tx);
+    const data = await res.json();
 
-    return tx;
+    const todayDate = new Date().toISOString().slice(0, 10);
 
-  // } catch (err: any) {
-  //   console.error("❌ Deposit Error:", err);
-  //   throw new Error(err.message || "Deposit failed");
-  // }
+    const result = {
+      sponsor: { total: 0, today: 0 },
+      direct: { total: 0, today: 0 },
+      pool: { total: 0, today: 0 },
+      level: { total: 0, today: 0 },
+      matching: { total: 0, today: 0 },
+      silver: { total: 0, today: 0 },
+    };
 
-} catch (err: any) {
-  console.error("❌ Deposit Error:", err);
+    data.forEach((row: any) => {
+      const amount = Number(row.amount) || 0;
+      const isToday = row.datetime?.startsWith(todayDate);
 
-  // ✅ DUPLICATE TX FIX
-  if (
-    err.message?.includes("already been processed") ||
-    err.message?.includes("Transaction simulation failed")
-  ) {
-    console.log("⚠️ Already processed → treating as success");
-    return "success";
+      const add = (key: keyof typeof result) => {
+        result[key].total += amount;
+        if (isToday) result[key].today += amount;
+      };
+
+      switch (row.income_type) {
+        case "sponsor":
+          add("sponsor");
+          break;
+
+        case "directKick":
+          add("direct");
+          break;
+
+        case "pool":
+          add("pool");
+          break;
+
+        case "level":
+          add("level");
+          break;
+
+        case "matching":
+          add("matching");
+          break;
+
+        case "silver":
+          add("silver");
+          break;
+      }
+    });
+
+    return result;
+
+  } catch (err) {
+    console.error(err);
+    return {
+      sponsor: { total: 0, today: 0 },
+      direct: { total: 0, today: 0 },
+      pool: { total: 0, today: 0 },
+      level: { total: 0, today: 0 },
+      matching: { total: 0, today: 0 },
+      silver: { total: 0, today: 0 },
+    };
   }
-
-  throw new Error(err.message || "Deposit failed");
-}
-  
 };

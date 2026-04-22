@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWallet } from "../../../solana/context/WalletContext";
 import { packages, getUserData, shorten, getSponsorDetails } from "../../../solana/program";
-import type { UserData } from "../../../solana/types";
+// import type { UserData } from "../../../solana/types";
 import { shareContent, copyToClipboard } from "../../../utils/helpers"
 import { Link } from 'react-router-dom';
 // // import UpgradeModal  from "../../modal/UpgradeModal"
@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom';
 
 function Sidebar() {
   const { wallet } = useWallet();
-  const [userData, setUserData] = useState<UserData | null>(null);
-// const [sponsorData, setSponsorData] = useState<any>(null);
+  // const [userData, setUserData] = useState<UserData | null>(null);
+const [userData, setUserData] = useState<any>(null);
 const [sponsorData, setSponsorData] = useState<{
   sponsor?: string;
   sponsor_id?: string;
