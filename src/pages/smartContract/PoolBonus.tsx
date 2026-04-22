@@ -3,20 +3,20 @@ import loadingImg from '/img/green-loading.gif'
 import Sidebar from '../../components/layout/smartContract/Sidebar'
 import checkIcon from '/img/white-check-icon.png'
 import { useWallet } from "../../solana/context/WalletContext";
-import { getUserData,getPoolIncome ,packages } from "../../solana/program";
+import { getUserData, getPoolIncome, packages } from "../../solana/program";
 // import { notifySuccess, notifyError } from "../../solana/context/Notifications";
 import UpgradeModal from "../../components/modal/UpgradeModal";
 import { useUpgrade } from '../../solana/context/UpgradeContext';
 function PoolBonus() {
   const { wallet } = useWallet();
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [poolData, setPoolData] = useState<Record<number, any>>({});
   const [loading, setLoading] = useState(true);
   const { handleUpgrade, upgrading } = useUpgrade();
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
   // useEffect(() => {
 
   //   const load = async () => {
@@ -31,29 +31,29 @@ function PoolBonus() {
   // }, [wallet]);
 
 
-useEffect(() => {
-  const load = async () => {
-    if (!wallet) return;
-    setLoading(true);
-    const user = await getUserData(wallet);
-    setUserData(user);
+  useEffect(() => {
+    const load = async () => {
+      if (!wallet) return;
+      setLoading(true);
+      const user = await getUserData(wallet);
+      setUserData(user);
 
-    const pool = await getPoolIncome(wallet);
-    let dataObj: any = {};
+      const pool = await getPoolIncome(wallet);
+      let dataObj: any = {};
 
-    for (let pkg = 2; pkg <= 10; pkg++) {
-      dataObj[pkg] = {
-        income: pool[pkg]?.total || 0,
-        count: pool[pkg]?.count || 0
-      };
-    }
+      for (let pkg = 2; pkg <= 10; pkg++) {
+        dataObj[pkg] = {
+          income: pool[pkg]?.total || 0,
+          count: pool[pkg]?.count || 0
+        };
+      }
 
-    setPoolData(dataObj);
-    setLoading(false);
-  };
+      setPoolData(dataObj);
+      setLoading(false);
+    };
 
-  load();
-}, [wallet]);
+    load();
+  }, [wallet]);
 
   // const handleUpgrade = async () => {
 
@@ -83,7 +83,7 @@ useEffect(() => {
       <main>
         <div className="container-fluid">
           <div className="row">
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
             <div className="col-lg-12 col-xl-9">
               <div className="SOL-page-title text-center"><span>Team Pool Bonus</span></div>
               <div className="row justify-content-center mb-3">
@@ -104,9 +104,9 @@ useEffect(() => {
                       <th>Status</th>
                     </tr>
                   </thead>
-                 
 
-{/* <tbody>
+
+                  {/* <tbody>
   {Array.from({ length: 9 }, (_, i) => {
     const level = i + 2;
     const pkg = level;
@@ -148,58 +148,58 @@ useEffect(() => {
     <td></td>
   </tr>
 </tbody> */}
-<tbody>
-  {loading ? (
-    <tr>
-      <td colSpan={4} className="text-center">
-        <img src={loadingImg} width="40" />
-      </td>
-    </tr>
-  ) : (
-    <>
-      {Array.from({ length: 9 }, (_, i) => {
-        const level = i + 2;
-        const pkg = level;
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={4} className="text-center">
+                          <img src={loadingImg} width="40" />
+                        </td>
+                      </tr>
+                    ) : (
+                      <>
+                        {Array.from({ length: 9 }, (_, i) => {
+                          const level = i + 2;
+                          const pkg = level;
 
-        const row = poolData[pkg] || { income: 0, count: 0 };
-        const required = (pkg - 1) * 4;
+                          const row = poolData[pkg] || { income: 0, count: 0 };
+                          const required = (pkg - 1) * 4;
 
-        const isUnlocked = row.count >= required;
+                          const isUnlocked = row.count >= required;
 
-        return (
-          <tr key={level} className={isUnlocked ? "bg-success" : ""}>
-            <td>{level}</td>
-            <td>{packages[pkg - 1]?.name}</td>
+                          return (
+                            <tr key={level} className={isUnlocked ? "bg-success" : ""}>
+                              <td>{level}</td>
+                              <td>{packages[pkg - 1]?.name}</td>
 
-            <td>{Number(row.income || 0).toFixed(2)} SOL</td>
+                              <td>{Number(row.income || 0).toFixed(2)} SOL</td>
 
-            <td>
-              {isUnlocked ? (
-                <img src={checkIcon} width="20" />
-              ) : (
-                <img src={loadingImg} width="20" />
-              )}
-            </td>
-          </tr>
-        );
-      })}
+                              <td>
+                                {isUnlocked ? (
+                                  <img src={checkIcon} width="20" />
+                                ) : (
+                                  <img src={loadingImg} width="20" />
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
 
-      {/* TOTAL */}
-      <tr>
-        <td><strong className="text-warning">Total</strong></td>
-        <td></td>
-        <td>
-          <strong className="text-success">
-            {Object.values(poolData)
-              .reduce((sum: number, r: any) => sum + Number(r.income || 0), 0)
-              .toFixed(2)} SOL
-          </strong>
-        </td>
-        <td></td>
-      </tr>
-    </>
-  )}
-</tbody>
+                        {/* TOTAL */}
+                        <tr>
+                          <td><strong className="text-warning">Total</strong></td>
+                          <td></td>
+                          <td>
+                            <strong className="text-success">
+                              {Object.values(poolData)
+                                .reduce((sum: number, r: any) => sum + Number(r.income || 0), 0)
+                                .toFixed(2)} SOL
+                            </strong>
+                          </td>
+                          <td></td>
+                        </tr>
+                      </>
+                    )}
+                  </tbody>
 
 
                 </table>
@@ -216,16 +216,16 @@ useEffect(() => {
         selectedPackage={selectedPackage}
         onUpgrade={handleUpgrade}
       /> */}
-<UpgradeModal
-  selectedPackage={selectedPackage}
-  onUpgrade={() =>
-    handleUpgrade(wallet, selectedPackage, () => {
-      // 🔥 optional refresh
-      window.location.reload();
-    })
-  }
-  upgrading={upgrading}
-/>
+      <UpgradeModal
+        selectedPackage={selectedPackage}
+        onUpgrade={() =>
+          handleUpgrade(wallet, selectedPackage, () => {
+            // 🔥 optional refresh
+            window.location.reload();
+          })
+        }
+        upgrading={upgrading}
+      />
 
     </>
   )

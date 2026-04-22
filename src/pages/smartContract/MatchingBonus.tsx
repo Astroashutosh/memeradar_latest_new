@@ -4,55 +4,55 @@ import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
 import { useWallet } from "../../solana/context/WalletContext";
-import {  getUserData,getReports } from "../../solana/program";
+import { getUserData, getReports } from "../../solana/program";
 import UpgradeModal from "../../components/modal/UpgradeModal";
 import { useUpgrade } from '../../solana/context/UpgradeContext';
 import { copyToClipboard } from '../../utils/helpers';
 
 function MatchingBonus() {
   const { wallet } = useWallet();
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const { handleUpgrade, upgrading } = useUpgrade();
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
 
-useEffect(() => {
-  const load = async () => {
-    if (!wallet) return;
+  useEffect(() => {
+    const load = async () => {
+      if (!wallet) return;
 
-    const data = await getUserData(wallet);
-    // console.log(data);
-    if (data) setUserData(data);
+      const data = await getUserData(wallet);
+      // console.log(data);
+      if (data) setUserData(data);
 
-    const reports = await getReports(wallet, "matching");
+      const reports = await getReports(wallet, "matching");
 
-    if ($.fn.DataTable.isDataTable('#example')) {
-      ($('#example') as any).DataTable().destroy();
-    }
+      if ($.fn.DataTable.isDataTable('#example')) {
+        ($('#example') as any).DataTable().destroy();
+      }
 
-    setTimeout(() => {
-      ($('#example') as any).DataTable({
-        data: reports,
-        columns: [
-          {
-            data: "package",
-            render: (pkg: number) => `Level ${pkg}`
-          },
-          // {
-          //   data: "from",
-          //   render: (val: string) =>
-          //     val ? val.slice(0, 4) + "..." + val.slice(-4) : "-"
-          // },
-          {
-            data: "from",
-            render: (val: string) => {
-              if (!val) return "-";
+      setTimeout(() => {
+        ($('#example') as any).DataTable({
+          data: reports,
+          columns: [
+            {
+              data: "package",
+              render: (pkg: number) => `Level ${pkg}`
+            },
+            // {
+            //   data: "from",
+            //   render: (val: string) =>
+            //     val ? val.slice(0, 4) + "..." + val.slice(-4) : "-"
+            // },
+            {
+              data: "from",
+              render: (val: string) => {
+                if (!val) return "-";
 
-              const short = val.slice(0, 4) + "..." + val.slice(-4);
+                const short = val.slice(0, 4) + "..." + val.slice(-4);
 
-              return `
+                return `
                 <span class="nowrap">${short}
                   <a href="#" class="ms-2 copy-btn" data-address="${val}">
                     <i class="bi bi-copy"></i>
@@ -62,47 +62,47 @@ useEffect(() => {
                   </a>
                 </span>
               `;
+              }
+            },
+            {
+              data: "amount",
+              render: (amt: number) =>
+                `${Number(amt || 0).toFixed(2)} SOL`
+            },
+            {
+              data: "timestamp",
+              render: (t: number) =>
+                new Date(t * 1000).toLocaleString()
+            },
+            {
+              data: "timestamp",
+              render: (t: number) =>
+                new Date(t * 1000).toLocaleString()
             }
-          },
-          {
-            data: "amount",
-            render: (amt: number) =>
-              `${Number(amt || 0).toFixed(2)} SOL`
-          },
-          {
-            data: "timestamp",
-            render: (t: number) =>
-              new Date(t * 1000).toLocaleString()
-          },
-          {
-            data: "timestamp",
-            render: (t: number) =>
-              new Date(t * 1000).toLocaleString()
-          }
-        ],
-        lengthMenu: [
-          [10, 30, 50, 100, 200, -1],
-          [10, 30, 50, 100, 200, "All"]
-        ],
-        pageLength: 10,
-        destroy: true
-      });
-      $('#example').off('click', '.copy-btn').on('click', '.copy-btn', function (e) {
-        e.preventDefault();
-        const addr = $(this).data('address');
-        copyToClipboard(addr, "Address copied");
-      });
-    }, 100);
-  };
+          ],
+          lengthMenu: [
+            [10, 30, 50, 100, 200, -1],
+            [10, 30, 50, 100, 200, "All"]
+          ],
+          pageLength: 10,
+          destroy: true
+        });
+        $('#example').off('click', '.copy-btn').on('click', '.copy-btn', function (e) {
+          e.preventDefault();
+          const addr = $(this).data('address');
+          copyToClipboard(addr, "Address copied");
+        });
+      }, 100);
+    };
 
-  load();
+    load();
 
-  return () => {
-    if ($.fn.DataTable.isDataTable('#example')) {
-      ($('#example') as any).DataTable().destroy();
-    }
-  };
-}, [wallet]);
+    return () => {
+      if ($.fn.DataTable.isDataTable('#example')) {
+        ($('#example') as any).DataTable().destroy();
+      }
+    };
+  }, [wallet]);
 
 
 
@@ -130,14 +130,14 @@ useEffect(() => {
 
 
 
-  
+
   return (
     <>
       <main>
         <div className="container-fluid">
           <div className="row">
 
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
 
             <div className="col-lg-12 col-xl-9">
               <div className="SOL-page-title text-center">
@@ -178,16 +178,16 @@ useEffect(() => {
         selectedPackage={selectedPackage}
         onUpgrade={handleUpgrade}
       /> */}
-<UpgradeModal
-  selectedPackage={selectedPackage}
-  onUpgrade={() =>
-    handleUpgrade(wallet, selectedPackage, () => {
-      // 🔥 optional refresh
-      window.location.reload();
-    })
-  }
-  upgrading={upgrading}
-/>
+      <UpgradeModal
+        selectedPackage={selectedPackage}
+        onUpgrade={() =>
+          handleUpgrade(wallet, selectedPackage, () => {
+            // 🔥 optional refresh
+            window.location.reload();
+          })
+        }
+        upgrading={upgrading}
+      />
       {/* Modal */}
       <div className="modal fade bd-example-modal-lg" id="paydetails" tabIndex={-1}>
         <div className="modal-dialog modal-dialog-centered modal-lg">

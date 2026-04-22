@@ -12,13 +12,13 @@ import PaginationWrapper from '../../utils/PaginationWrapper';
 function SponsorBonus() {
   const { wallet } = useWallet();
   const [loading, setLoading] = useState(true);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const { handleUpgrade, upgrading } = useUpgrade();
   const [rows, setRows] = useState<any[]>([]);
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
   // useEffect(() => {
 
   //   const load = async () => {
@@ -106,7 +106,7 @@ function SponsorBonus() {
       <main>
         <div className="container-fluid">
           <div className="row">
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
             <div className="col-lg-12 col-xl-9">
               <div className="SOL-page-title text-center"><span>Team Sponsor Bonus</span></div>
 

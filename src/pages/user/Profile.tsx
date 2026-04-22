@@ -9,12 +9,12 @@ import { useUpgrade } from '../../solana/context/UpgradeContext';
 
 function Profile() {
   const { wallet } = useWallet();
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
   const { handleUpgrade, upgrading } = useUpgrade();
-  
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
   // const handleUpgrade = async () => {
   //   if (!wallet) return;
   //   if (!selectedPackage) {
@@ -42,7 +42,7 @@ function Profile() {
       <main>
         <div className="container-fluid">
           <div className="row">
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
             <div className="col-lg-12 col-xl-9">
               <div className="row">
                 <div className="col-lg-6">
@@ -187,7 +187,7 @@ function Profile() {
           </div>
         </div>
       </main>
-       {/* <UpgradeModal
+      {/* <UpgradeModal
       selectedPackage={selectedPackage}
       onUpgrade={handleUpgrade}
     /> */}

@@ -10,7 +10,7 @@ import usePageCSS from "../../hooks/usePageCSS";
 import ReadyToPump from "../../components/dashboard/ReadyToPump";
 import TrendingToken from "../../components/dashboard/TrendingToken";
 import { useWallet } from "../../solana/context/WalletContext";
-import { packages, getUserData, shorten,getSponsorDetails } from "../../solana/program";
+import { packages, getUserData, shorten, getSponsorDetails } from "../../solana/program";
 import type { UserData } from "../../solana/types";
 import { copyToClipboard } from "../../utils/helpers"
 import { Link } from "react-router-dom";
@@ -25,97 +25,97 @@ function Dashboard() {
   usePageCSS("assets/home.css");
   usePageCSS("assets/dex.css");
 
-// new code of celebration
+  // new code of celebration
 
-const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
-const celebration = (volume = 0.11) => {
-  if (!window.confetti) return;
+  const celebration = (volume = 0.11) => {
+    if (!window.confetti) return;
 
-  const burst = () => {
-    window.confetti({
-      particleCount: 50,
-      angle: 60,
-      spread: 90,
-      origin: { x: 0 },
-    });
+    const burst = () => {
+      window.confetti({
+        particleCount: 50,
+        angle: 60,
+        spread: 90,
+        origin: { x: 0 },
+      });
 
-    window.confetti({
-      particleCount: 50,
-      angle: 120,
-      spread: 90,
-      origin: { x: 1 },
-    });
+      window.confetti({
+        particleCount: 50,
+        angle: 120,
+        spread: 90,
+        origin: { x: 1 },
+      });
+    };
+
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+      audioRef.current.play().catch(() => { });
+    }
+
+    setTimeout(burst, 100);
+    setTimeout(burst, 200);
+    setTimeout(burst, 400);
   };
 
-  if (audioRef.current) {
-    audioRef.current.volume = volume;
-    audioRef.current.play().catch(() => {});
-  }
 
-  setTimeout(burst, 100);
-  setTimeout(burst, 200);
-  setTimeout(burst, 400);
-};
+  useEffect(() => {
 
 
-useEffect(() => {
+    const loadConfetti = (): Promise<any> => {
+      return new Promise((resolve, reject) => {
+        if (window.confetti) return resolve(window.confetti);
 
- 
-  const loadConfetti = (): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      if (window.confetti) return resolve(window.confetti);
+        const script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js";
+        script.onload = () => resolve(window.confetti);
+        script.onerror = () => reject();
+        document.body.appendChild(script);
+      });
+    };
 
-      const script = document.createElement("script");
-      script.src =
-        "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js";
-      script.onload = () => resolve(window.confetti);
-      script.onerror = () => reject();
-      document.body.appendChild(script);
+    loadConfetti().then(() => {
+      celebration();
+
     });
-  };
-
-  loadConfetti().then(() => {
-    celebration(); 
-
-  });
-}, []);
+  }, []);
 
 
-const [sponsorData, setSponsorData] = useState<{
-  sponsor?: string;
-  sponsor_id?: string;
-} | null>(null);
+  const [sponsorData, setSponsorData] = useState<{
+    sponsor?: string;
+    sponsor_id?: string;
+  } | null>(null);
   const { handleUpgrade, upgrading } = useUpgrade();
   const [showModal, setShowModal] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const { wallet, walletReady } = useWallet();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+  const [selectedPackage] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
-  const loadUser = async () => {
-    if (!wallet || !walletReady) return;
+    const loadUser = async () => {
+      if (!wallet || !walletReady) return;
 
-    setLoading(true); 
+      setLoading(true);
 
-    try {
-      const data = await getUserData(wallet);
+      try {
+        const data = await getUserData(wallet);
 
-      if (data) {
-        setUserData(data);
+        if (data) {
+          setUserData(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false); 
-    }
-  };
+    };
 
-  loadUser();
-}, [wallet, walletReady]);
+    loadUser();
+  }, [wallet, walletReady]);
 
   useEffect(() => {
 
@@ -188,29 +188,29 @@ const [sponsorData, setSponsorData] = useState<{
   const referralLinkCopy = wallet ? `${baseUrl}/${wallet}` : "";
 
 
-useEffect(() => {
-  const loadSponsor = async () => {
-    if (!wallet) return;
+  useEffect(() => {
+    const loadSponsor = async () => {
+      if (!wallet) return;
 
-    const res = await getSponsorDetails(wallet);
+      const res = await getSponsorDetails(wallet);
 
-    if (res?.status) {
-      setSponsorData(res);
-    }
-  };
+      if (res?.status) {
+        setSponsorData(res);
+      }
+    };
 
-  loadSponsor();
-}, [wallet]);
+    loadSponsor();
+  }, [wallet]);
 
 
 
-if (loading) {
-  return <Loader />;
-}
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <>
-    
+
       <style>
         {`
           .marquee {
@@ -275,9 +275,9 @@ if (loading) {
                     <div className="col-sm-7 col-7 text-start">
                       <small> Current Rank</small>
                       {/* <h4> {userPackage?.name ?? "No Rank"}</h4> */}
-                     <h4>
-  {packages.find(p => p.id === userData?.currentPackage)?.name || "DBO"}
-</h4>
+                      <h4>
+                        {packages.find(p => p.id === userData?.currentPackage)?.name || "DBO"}
+                      </h4>
                     </div>
                     <div className="col-sm-5 col-5 text-end">
                       <Link to="/certificate" className="btn btn-primary btn-sm bg-gradient-golden">
@@ -296,9 +296,9 @@ if (loading) {
                       <div className="col-sm-6  col-6 skstyle"> {nextPackage ? nextPackage.name : "Max Rank Achieved"} </div>
                     </div>
                   </div>
-        
 
-{/* <a href="#" className="upgrade_Btn main-div2 mt-1" onClick={(e) => { e.preventDefault();
+
+                  {/* <a href="#" className="upgrade_Btn main-div2 mt-1" onClick={(e) => { e.preventDefault();
     if (nextPackage) {
       setSelectedPackage(nextPackage);
     }
@@ -306,9 +306,9 @@ if (loading) {
 >
   Upgrade Now
 </a> */}
-<Link to="/smartContract" className="upgrade_Btn main-div2 mt-1" >
-  Upgrade Now
-</Link>
+                  <Link to="/smartContract" className="upgrade_Btn main-div2 mt-1" >
+                    Upgrade Now
+                  </Link>
 
 
                 </div>
@@ -367,21 +367,21 @@ if (loading) {
                     className="fa-regular fa-usd me-1"></i>5.00</span> Free </span>
                 </div>
 
-<div className="section-head mb-1">
-  <div className="section-title">Sponsor</div>
-</div>
+                <div className="section-head mb-1">
+                  <div className="section-title">Sponsor</div>
+                </div>
 
-<div className="item-style-box d-flex justify-content-between align-items-center mb-0">
-  <span>
-    {sponsorData?.sponsor
-      ? shorten(sponsorData.sponsor)
-      : "Not Assigned"}
-  </span>
+                <div className="item-style-box d-flex justify-content-between align-items-center mb-0">
+                  <span>
+                    {sponsorData?.sponsor
+                      ? shorten(sponsorData.sponsor)
+                      : "Not Assigned"}
+                  </span>
 
-  <span className="text-success">
-    {sponsorData?.sponsor_id ?? "-"}
-  </span>
-</div>
+                  <span className="text-success">
+                    {sponsorData?.sponsor_id ?? "-"}
+                  </span>
+                </div>
 
 
               </div>
@@ -480,7 +480,7 @@ if (loading) {
                     Welcome back to MemeRadar, home to the smartest and fastest-growing meme community.
                   </div>
                 </div>
-  
+
                 <div className="celebratebtn" id="celebrateAction" title="Click to Celebrate" onClick={() => celebration(0.75)}>
                   <i className="fa-regular fa-face-party" data-string="celebrateAction"></i>
                 </div>
@@ -554,7 +554,7 @@ if (loading) {
           </div>
         </div> */}
 
-{/* <UpgradeModal
+      {/* <UpgradeModal
   selectedPackage={selectedPackage}
   onUpgrade={() =>
     handleUpgrade(wallet, selectedPackage, () => {
@@ -565,69 +565,69 @@ if (loading) {
   upgrading={upgrading}
 /> */}
 
-{selectedPackage && (
-  <div
-    className="modal fade show"
-    style={{ display: "block" }}
-  >
-    <div
-      className="modal-dialog modal-dialog-centered"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="modal-content">
-
-        {/* Close */}
-        <span
-          className="modalWindow-close"
-          onClick={() => setSelectedPackage(null)}
-        ></span>
-
-        <div className="modal-body text-center">
-
-          <div className="sec-divider top"></div>
-          <div className="sec-divider bottom"></div>
-
-          <img
-            src={`${import.meta.env.BASE_URL}img/solana-icon.png`}
-            width="80"
-          />
-
-          <div className="badgeStyle text-center mb-2">
-            <h5>{selectedPackage?.price} SOL</h5>
-          </div>
-
-          <h3>
-            Package:{" "}
-            <span className="text-success">
-              {selectedPackage?.name}
-            </span>
-          </h3>
-
-          <div className="fs-small mb-2">
-            To complete your package upgrade, please continue to the payment page.
-          </div>
-
-          {/* Upgrade button */}
-          <a
-            href="#"
-            className={`btn btn-primary ms-1 ${upgrading ? "disabled" : ""}`}
-            onClick={(e) => {
-              e.preventDefault();
-              if (!upgrading) {
-                handleUpgrade(wallet, selectedPackage, () => {
-                  window.location.reload();
-                });
-              }
-            }}
+      {selectedPackage && (
+        <div
+          className="modal fade show"
+          style={{ display: "block" }}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
           >
-            {upgrading ? "Processing..." : "Proceed to Upgrade"}
-          </a>
+            <div className="modal-content">
 
+              {/* Close */}
+              <span
+                className="modalWindow-close"
+                // onClick={() => setSelectedPackage(null)}
+              ></span>
+
+              <div className="modal-body text-center">
+
+                <div className="sec-divider top"></div>
+                <div className="sec-divider bottom"></div>
+
+                <img
+                  src={`${import.meta.env.BASE_URL}img/solana-icon.png`}
+                  width="80"
+                />
+
+                <div className="badgeStyle text-center mb-2">
+                  <h5>{selectedPackage?.price} SOL</h5>
+                </div>
+
+                <h3>
+                  Package:{" "}
+                  <span className="text-success">
+                    {selectedPackage?.name}
+                  </span>
+                </h3>
+
+                <div className="fs-small mb-2">
+                  To complete your package upgrade, please continue to the payment page.
+                </div>
+
+                {/* Upgrade button */}
+                <a
+                  href="#"
+                  className={`btn btn-primary ms-1 ${upgrading ? "disabled" : ""}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!upgrading) {
+                      handleUpgrade(wallet, selectedPackage, () => {
+                        window.location.reload();
+                      });
+                    }
+                  }}
+                >
+                  {upgrading ? "Processing..." : "Proceed to Upgrade"}
+                </a>
+
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
 
 

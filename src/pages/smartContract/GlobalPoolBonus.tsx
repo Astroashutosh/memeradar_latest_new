@@ -11,14 +11,14 @@ import PaginationWrapper from '../../utils/PaginationWrapper';
 function GlobalPoolBonus() {
   const { wallet } = useWallet();
   const [loading, setLoading] = useState(true);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [rows, setRows] = useState<any[]>([]);
   const { handleUpgrade, upgrading } = useUpgrade();
-  
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
   // useEffect(() => {
 
   //   const load = async () => {
@@ -89,7 +89,7 @@ function GlobalPoolBonus() {
       <main>
         <div className="container-fluid">
           <div className="row">
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
             <div className="col-lg-12 col-xl-9">
               <div className="SOL-page-title text-center"><span>Global Silver Bonus</span></div>
 

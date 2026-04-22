@@ -16,14 +16,14 @@ function LevelbonusDetails() {
   const { wallet } = useWallet();
 
   const { handleUpgrade, upgrading } = useUpgrade();
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
 
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
 
   useEffect(() => {
     if (!wallet || !level) return;
@@ -49,7 +49,7 @@ function LevelbonusDetails() {
         <div className="container-fluid">
           <div className="row">
 
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
 
             <div className="col-lg-12 col-xl-9">
 

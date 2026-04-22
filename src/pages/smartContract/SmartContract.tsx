@@ -11,14 +11,20 @@ import { notifySuccess, notifyError } from "../../solana/context/Notifications";
 import {  getUserData,claimMatchingBonus, getLevelPartners, getTotalAndTodayIncome, getIncomeBreakdown } from "../../solana/program";
 import UpgradeModal from "../../components/modal/UpgradeModal";
 import { Link } from 'react-router-dom';
+import { copyToClipboard } from '../../utils/helpers';
 function SmartContract() {
   const { wallet } = useWallet();
   const [loading, setLoading] = useState(true);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
-  const [userPackage, setUserPackage] = useState<number>(0);
-  // const { countdown, countdown1 } = useLegacyCountdown();
-  // const [upgrading, setUpgrading] = useState(false);
+  // const [ setUserPackage] = useState<number>(0);
+  // const { ownershipHash, setOwnershipHash } = useLegacyCountdown();
+  const [ownershipHash] = useState("0x5722CE859D00D6C59354c0750263180fFdc8ab7f");
+   const coinContractAddress="0x5722CE859D00D6C59354c0750263180fFdc8ab7f";
+   const payoutWalletAddress="0x5722CE859D00D6C59354c0750263180fFdc8ab7f";
+   const pancakeswapLiquidity="0x5722CE859D00D6C59354c0750263180fFdc8ab7f";
+   const liquidityLockHash="0x5722CE859D00D6C59354c0750263180fFdc8ab7f";
+
 const [networkCount, setNetworkCount] = useState(0);
 const { handleUpgrade, upgrading } = useUpgrade();
 // const [showClaimModal, setShowClaimModal] = useState(false);
@@ -57,7 +63,7 @@ useEffect(() => {
       // ✅ user data
       if (user) {
         setUserData(user);
-        setUserPackage(user.currentPackage);
+        // setUserPackage(user.currentPackage);
       }
  
       // ✅ network
@@ -99,7 +105,7 @@ useEffect(() => {
       console.log('user',user);
       if (user) {
         setUserData(user);
-        setUserPackage(user.currentPackage);
+        // setUserPackage(user.currentPackage);
       }
 
     } catch (err) {
@@ -535,11 +541,11 @@ const handleClaimMatching = async () => {
                 <div className="address-tile">
                   <div className="address-label"><i className="fa-solid fa-file-contract"></i>Coin Contract Address</div>
                   <div className="address-copy">
-                    <div className="address-value">0x5722CE859D00D6C59354c0750263180fFdc8ab7f</div>
+                    <div className="address-value">{coinContractAddress}</div>
                     <div className="address-actions">
-                      <a href="#!" className="address-action" aria-label="Copy contract address"><i
+                      <a href="#!"  onClick={(e) => { e.preventDefault(); copyToClipboard(coinContractAddress, "Address copied");}} className="address-action" aria-label="Copy contract address"><i
                           className="fa-regular fa-copy"></i></a>
-                      <a href="#!" className="address-action open" aria-label="Open contract address"><i
+                      <a href={`https://solscan.io/account/${coinContractAddress}?cluster=devnet`} target="_blank" className="address-action open" aria-label="Open contract address"><i
                           className="fa-solid fa-up-right-from-square"></i></a>
                     </div>
                   </div>
@@ -550,11 +556,11 @@ const handleClaimMatching = async () => {
                 <div className="address-tile">
                   <div className="address-label"><i className="fa-solid fa-wallet"></i>Payout Wallet Address</div>
                   <div className="address-copy">
-                    <div className="address-value">0x5722CE859D00D6C59354c0750263180fFdc8ab7f</div>
+                    <div className="address-value">{payoutWalletAddress}</div>
                     <div className="address-actions">
-                      <a href="#!" className="address-action" aria-label="Copy contract address"><i
+                      <a href="#!"  onClick={(e) => { e.preventDefault(); copyToClipboard(payoutWalletAddress, "Address copied");}} className="address-action" aria-label="Copy contract address"><i
                           className="fa-regular fa-copy"></i></a>
-                      <a href="#!" className="address-action open" aria-label="Open contract address"><i
+                      <a href={`https://solscan.io/account/${payoutWalletAddress}?cluster=devnet`} target="_blank" className="address-action open" aria-label="Open contract address"><i
                           className="fa-solid fa-up-right-from-square"></i></a>
                     </div>
                   </div>
@@ -565,11 +571,11 @@ const handleClaimMatching = async () => {
                 <div className="address-tile">
                   <div className="address-label"><i className="fa-solid fa-droplet"></i>Pancakeswap Liquidity Address</div>
                   <div className="address-copy">
-                    <div className="address-value">0x5722CE859D00D6C59354c0750263180fFdc8ab7f</div>
+                    <div className="address-value">{pancakeswapLiquidity}</div>
                     <div className="address-actions">
-                      <a href="#!" className="address-action" aria-label="Copy contract address"><i
+                      <a href="#!"  onClick={(e) => { e.preventDefault(); copyToClipboard(pancakeswapLiquidity, "Address copied");}} className="address-action" aria-label="Copy contract address"><i
                           className="fa-regular fa-copy"></i></a>
-                      <a href="#!" className="address-action open" aria-label="Open contract address"><i
+                      <a href={`https://solscan.io/account/${pancakeswapLiquidity}?cluster=devnet`} target="_blank" className="address-action open" aria-label="Open contract address"><i
                           className="fa-solid fa-up-right-from-square"></i></a>
                     </div>
                   </div>
@@ -580,11 +586,11 @@ const handleClaimMatching = async () => {
                 <div className="address-tile">
                   <div className="address-label"><i className="fa-solid fa-lock"></i>Liquidity Lock Hash</div>
                   <div className="address-copy">
-                    <div className="address-value">0x5722CE859D00D6C59354c0750263180fFdc8ab7f</div>
+                    <div className="address-value">{liquidityLockHash}</div>
                     <div className="address-actions">
-                      <a href="#!" className="address-action" aria-label="Copy contract address"><i
+                      <a href="#!"  onClick={(e) => { e.preventDefault(); copyToClipboard(liquidityLockHash, "Address copied");}} className="address-action" aria-label="Copy contract address"><i
                           className="fa-regular fa-copy"></i></a>
-                      <a href="#!" className="address-action open" aria-label="Open contract address"><i
+                      <a href={`https://solscan.io/account/${liquidityLockHash}?cluster=devnet`} target="_blank" className="address-action open" aria-label="Open contract address"><i
                           className="fa-solid fa-up-right-from-square"></i></a>
                     </div>
                   </div>
@@ -596,11 +602,11 @@ const handleClaimMatching = async () => {
                 <div className="address-tile">
                   <div className="address-label"><i className="fa-solid fa-user-slash"></i>Ownership Renounced Hash</div>
                   <div className="address-copy">
-                    <div className="address-value">0x5722CE859D00D6C59354c0750263180fFdc8ab7f</div>
+                    <div className="address-value">{ownershipHash} </div>
                     <div className="address-actions">
-                      <a href="#!" className="address-action" aria-label="Copy contract address"><i
+                      <a href="#!"  onClick={(e) => { e.preventDefault(); copyToClipboard(ownershipHash, "Address copied");}} className="address-action" aria-label="Copy contract address"><i
                           className="fa-regular fa-copy"></i></a>
-                      <a href="#!" className="address-action open" aria-label="Open contract address"><i
+                      <a href={`https://solscan.io/account/${ownershipHash}?cluster=devnet`} target="_blank" className="address-action open" aria-label="Open contract address"><i
                           className="fa-solid fa-up-right-from-square"></i></a>
                     </div>
                   </div>

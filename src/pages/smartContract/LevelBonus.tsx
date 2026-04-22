@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import loading from '/img/green-loading.gif';
 import Sidebar from '../../components/layout/smartContract/Sidebar'
 import { useWallet } from "../../solana/context/WalletContext";
-import {  getUserData,getLevelPartners,getLevelIncome } from "../../solana/program";
+import { getUserData, getLevelPartners, getLevelIncome } from "../../solana/program";
 import UpgradeModal from "../../components/modal/UpgradeModal";
 import { useUpgrade } from '../../solana/context/UpgradeContext';
 import { Link } from 'react-router-dom';
@@ -11,47 +11,47 @@ import { Link } from 'react-router-dom';
 function LevelBonus() {
   const { wallet } = useWallet();
   const [loadingData, setLoading] = useState(true);
-    const { handleUpgrade, upgrading } = useUpgrade();
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const { handleUpgrade, upgrading } = useUpgrade();
+  const [selectedPackage] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [levelCounts, setLevelCounts] = useState<number[]>([]);
-const [levelIncome, setLevelIncome] = useState<Record<number, number>>({});
-  const handleOpenUpgrade = (pkg: any) => {
-    setSelectedPackage(pkg);
-  };
-  
-useEffect(() => {
-  const load = async () => {
-    if (!wallet) return;
-    setLoading(true);
-    const levels = await getLevelPartners(wallet, 10);
+  const [levelIncome, setLevelIncome] = useState<Record<number, number>>({});
+  // const handleOpenUpgrade = (pkg: any) => {
+  //   setSelectedPackage(pkg);
+  // };
 
-    const counts = levels.map((lvl) => lvl.length);
-    setLevelCounts(counts);
+  useEffect(() => {
+    const load = async () => {
+      if (!wallet) return;
+      setLoading(true);
+      const levels = await getLevelPartners(wallet, 10);
 
-    let incomeObj: any = {};
+      const counts = levels.map((lvl) => lvl.length);
+      setLevelCounts(counts);
 
-    for (let lvl = 2; lvl <= 10; lvl++) {
-      const inc = await getLevelIncome(wallet, lvl);
-      incomeObj[lvl] = inc;
-    }
+      let incomeObj: any = {};
 
-    setLevelIncome(incomeObj);
+      for (let lvl = 2; lvl <= 10; lvl++) {
+        const inc = await getLevelIncome(wallet, lvl);
+        incomeObj[lvl] = inc;
+      }
 
-    const data = await getUserData(wallet);
-    setUserData(data);
-    setLoading(false);
-  };
+      setLevelIncome(incomeObj);
 
-  load();
-}, [wallet]);
+      const data = await getUserData(wallet);
+      setUserData(data);
+      setLoading(false);
+    };
+
+    load();
+  }, [wallet]);
 
   return (
     <>
       <main>
         <div className="container-fluid">
           <div className="row">
-            <Sidebar onUpgradeClick={handleOpenUpgrade} />
+            <Sidebar />
             <div className="col-lg-12 col-xl-9">
               <div className="SOL-page-title text-center"><span>Team Level Bonus</span></div>
               <div className="row justify-content-center mb-3">
@@ -72,7 +72,7 @@ useEffect(() => {
                       <th>Details</th>
                     </tr>
                   </thead>
-                  
+
 
                   <tbody>
                     {loadingData ? (
@@ -141,16 +141,16 @@ useEffect(() => {
         selectedPackage={selectedPackage}
         onUpgrade={handleUpgrade}
       /> */}
-<UpgradeModal
-  selectedPackage={selectedPackage}
-  onUpgrade={() =>
-    handleUpgrade(wallet, selectedPackage, () => {
-      // 🔥 optional refresh
-      window.location.reload();
-    })
-  }
-  upgrading={upgrading}
-/>
+      <UpgradeModal
+        selectedPackage={selectedPackage}
+        onUpgrade={() =>
+          handleUpgrade(wallet, selectedPackage, () => {
+            // 🔥 optional refresh
+            window.location.reload();
+          })
+        }
+        upgrading={upgrading}
+      />
 
     </>
   )
