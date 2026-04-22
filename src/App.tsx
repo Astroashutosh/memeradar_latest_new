@@ -91,7 +91,7 @@ useEffect(() => {
 
 
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          {/* <Route element={<MainLayout />}> */}
+            {/* <Route element={<MainLayout />}> */}
             <Route path="/smartContract" element={<SmartContract />} />
             <Route path="/LLPReward" element={<LLPReward />} />
             <Route path="/LLPRewardHistory" element={<LLPRewardHistory />} />

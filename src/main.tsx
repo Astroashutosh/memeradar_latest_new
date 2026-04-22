@@ -39,7 +39,7 @@ import App from "./App.tsx";
 createRoot(document.getElementById('root')!).render(
   // basename="/bullbnb-solana-design/"
   // basename={import.meta.env.BASE_URL}
-  <BrowserRouter basename={import.meta.env.BASE_URL}>
+  <BrowserRouter>
     {/* <StrictMode> */}
       <App />
     {/* </StrictMode> */}
