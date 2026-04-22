@@ -1816,6 +1816,252 @@ export const getIncomeBreakdown = async (wallet: string) => {
 
 
 
+// export const deposit = async (amount: number, isFinal: boolean) => {
+//   try {
+//     const program = getProgram();
+//     const provider = program.provider as anchor.AnchorProvider;
+
+//     const wallet = provider.wallet;
+//     const connection = provider.connection;
+
+//     // =============================
+//     // PDA
+//     // =============================
+//     const userPda = getUserPda(wallet.publicKey.toBase58());
+
+//     const [statePda] = PublicKey.findProgramAddressSync(
+//       [Buffer.from("state")],
+//       program.programId
+//     );
+
+//     const [vault] = PublicKey.findProgramAddressSync(
+//       [Buffer.from("vault")],
+//       program.programId
+//     );
+
+//     // =============================
+//     // USER FETCH
+//     // =============================
+//     const user: any = await program.account.user.fetch(userPda);
+
+//     if (!user.exists) {
+//       throw new Error("❌ User not registered");
+//     }
+
+//     const referrerWallet = new PublicKey(user.referrer);
+//     const referrerPda = getUserPda(referrerWallet.toBase58());
+
+//     // =============================
+//     // 🔥 CONTRACT LOGIC (IMPORTANT)
+//     // =============================
+//     // if (!user.preLppDone) {
+//     //   // 👉 FIRST TIME → PRE LLP
+//     //   if (amount < 10 || amount > 100) {
+//     //     throw new Error("❌ Pre LPP: 10 - 100");
+//     //   }
+//     //   isFinal = false;
+//     // } else {
+//     //   // 👉 AFTER PRE → FINAL LLP
+//     //   if (amount < 101 || amount > 5000) {
+//     //     throw new Error("❌ Final LPP: 101 - 5000");
+//     //   }
+//     //   isFinal = true;
+//     // }
+
+// // =============================
+// // ✅ CORRECT FLOW (FINAL FIX)
+// // =============================
+// const isPreDone = user.preLpp.toNumber() > 0;
+
+// if (!isPreDone) {
+//   if (isFinal) {
+//     throw new Error("❌ You must complete PRE LPP first");
+//   }
+
+//   if (amount < 10 || amount > 100) {
+//     throw new Error("❌ Pre LPP: 10 - 100");
+//   }
+// } else {
+//   if (!isFinal) {
+//     throw new Error("❌ Pre LPP already completed");
+//   }
+
+//   // ✅ FINAL UNLIMITED
+//   if (amount < 101) {
+//     throw new Error("❌ Final LPP minimum 101");
+//   }
+// }
+
+
+
+
+//     // =============================
+//     // ATA
+//     // =============================
+//     const fromAta = getAssociatedTokenAddressSync(
+//       MINT,
+//       wallet.publicKey
+//     );
+
+//     const toAta = getAssociatedTokenAddressSync(
+//       MINT,
+//       vault,
+//       true
+//     );
+
+//     // =============================
+//     // CREATE ATA IF NOT EXISTS
+//     // =============================
+// //     const txInit = new anchor.web3.Transaction();
+
+// //     if (!(await connection.getAccountInfo(fromAta))) {
+// //       txInit.add(
+// //         createAssociatedTokenAccountInstruction(
+// //           wallet.publicKey,
+// //           fromAta,
+// //           wallet.publicKey,
+// //           MINT
+// //         )
+// //       );
+// //     }
+
+// //     if (!(await connection.getAccountInfo(toAta))) {
+// //       txInit.add(
+// //         createAssociatedTokenAccountInstruction(
+// //           wallet.publicKey,
+// //           toAta,
+// //           vault,
+// //           MINT
+// //         )
+// //       );
+// //     }
+
+// //     if (txInit.instructions.length > 0) {
+// //       const tx = await wallet.signTransaction(txInit);
+// // const sig = await connection.sendRawTransaction(tx.serialize());
+// // await connection.confirmTransaction(sig);
+// //       await connection.confirmTransaction(sig);
+// //     }
+
+// const txInit = new anchor.web3.Transaction();
+
+// if (!(await connection.getAccountInfo(fromAta))) {
+//   txInit.add(
+//     createAssociatedTokenAccountInstruction(
+//       wallet.publicKey,
+//       fromAta,
+//       wallet.publicKey,
+//       MINT
+//     )
+//   );
+// }
+
+// if (!(await connection.getAccountInfo(toAta))) {
+//   txInit.add(
+//     createAssociatedTokenAccountInstruction(
+//       wallet.publicKey,
+//       toAta,
+//       vault,
+//       MINT
+//     )
+//   );
+// }
+
+// // ✅ IMPORTANT FIX
+// if (txInit.instructions.length > 0) {
+//   const latestBlockhash = await connection.getLatestBlockhash();
+
+//   txInit.recentBlockhash = latestBlockhash.blockhash;
+//   txInit.feePayer = wallet.publicKey;
+
+//   const signedTx = await wallet.signTransaction(txInit);
+//   const sig = await connection.sendRawTransaction(signedTx.serialize());
+
+//   await connection.confirmTransaction(sig);
+// }
+
+
+
+//     // =============================
+//     // BUILD UPLINE
+//     // =============================
+//     const remainingAccounts: any[] = [];
+//     let current = referrerWallet;
+
+//     for (let i = 0; i < 24; i++) {
+//       if (current.equals(PublicKey.default)) break;
+
+//       const pda = getUserPda(current.toBase58());
+
+//       try {
+//         const acc: any = await program.account.user.fetch(pda);
+
+//         remainingAccounts.push({
+//           pubkey: pda,
+//           isWritable: true,
+//           isSigner: false,
+//         });
+
+//         current = new PublicKey(acc.referrer);
+//       } catch {
+//         break;
+//       }
+//     }
+
+//     // =============================
+//     // 🚀 CONTRACT CALL
+//     // =============================
+//     const tx = await program.methods
+//       .deposit(new anchor.BN(amount), isFinal)
+//       .accounts({
+//         user: userPda,
+//         referrer: referrerPda,
+//         state: statePda,
+//         from: fromAta,
+//         to: toAta,
+//         authority: wallet.publicKey,
+//         tokenProgram: TOKEN_PROGRAM_ID,
+//       })
+//       .remainingAccounts(remainingAccounts)
+//       .rpc();
+
+//     console.log("✅ Deposit Success:", tx);
+
+//     return tx;
+
+//   // } catch (err: any) {
+//   //   console.error("❌ Deposit Error:", err);
+//   //   throw new Error(err.message || "Deposit failed");
+//   // }
+
+// } catch (err: any) {
+//   console.error("❌ Deposit Error:", err);
+
+//   // ✅ DUPLICATE TX FIX
+//   if (
+//     err.message?.includes("already been processed") ||
+//     err.message?.includes("Transaction simulation failed")
+//   ) {
+//     console.log("⚠️ Already processed → treating as success");
+//     return "success";
+//   }
+
+//   throw new Error(err.message || "Deposit failed");
+// }
+  
+// };
+
+
+
+
+
+
+
+
+
+
+
+
 export const deposit = async (amount: number, isFinal: boolean) => {
   try {
     const program = getProgram();
@@ -1852,48 +2098,27 @@ export const deposit = async (amount: number, isFinal: boolean) => {
     const referrerPda = getUserPda(referrerWallet.toBase58());
 
     // =============================
-    // 🔥 CONTRACT LOGIC (IMPORTANT)
+    // 🔥 STRICT PRE / FINAL LOGIC
     // =============================
-    // if (!user.preLppDone) {
-    //   // 👉 FIRST TIME → PRE LLP
-    //   if (amount < 10 || amount > 100) {
-    //     throw new Error("❌ Pre LPP: 10 - 100");
-    //   }
-    //   isFinal = false;
-    // } else {
-    //   // 👉 AFTER PRE → FINAL LLP
-    //   if (amount < 101 || amount > 5000) {
-    //     throw new Error("❌ Final LPP: 101 - 5000");
-    //   }
-    //   isFinal = true;
-    // }
+    const isPreDone = user.preLpp.toNumber() > 0;
 
-// =============================
-// ✅ CORRECT FLOW (FINAL FIX)
-// =============================
-const isPreDone = user.preLpp.toNumber() > 0;
+    if (!isPreDone) {
+      if (isFinal) {
+        throw new Error("❌ Complete PRE LLP first");
+      }
 
-if (!isPreDone) {
-  if (isFinal) {
-    throw new Error("❌ You must complete PRE LPP first");
-  }
+      if (amount < 10 || amount > 100) {
+        throw new Error("❌ Pre LPP: 10 - 100");
+      }
+    } else {
+      if (!isFinal) {
+        throw new Error("❌ Pre LLP already completed");
+      }
 
-  if (amount < 10 || amount > 100) {
-    throw new Error("❌ Pre LPP: 10 - 100");
-  }
-} else {
-  if (!isFinal) {
-    throw new Error("❌ Pre LPP already completed");
-  }
-
-  // ✅ FINAL UNLIMITED
-  if (amount < 101) {
-    throw new Error("❌ Final LPP minimum 101");
-  }
-}
-
-
-
+      if (amount < 101) {
+        throw new Error("❌ Final LPP minimum 101");
+      }
+    }
 
     // =============================
     // ATA
@@ -1912,75 +2137,44 @@ if (!isPreDone) {
     // =============================
     // CREATE ATA IF NOT EXISTS
     // =============================
-//     const txInit = new anchor.web3.Transaction();
+    const txInit = new anchor.web3.Transaction();
 
-//     if (!(await connection.getAccountInfo(fromAta))) {
-//       txInit.add(
-//         createAssociatedTokenAccountInstruction(
-//           wallet.publicKey,
-//           fromAta,
-//           wallet.publicKey,
-//           MINT
-//         )
-//       );
-//     }
+    if (!(await connection.getAccountInfo(fromAta))) {
+      txInit.add(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey,
+          fromAta,
+          wallet.publicKey,
+          MINT
+        )
+      );
+    }
 
-//     if (!(await connection.getAccountInfo(toAta))) {
-//       txInit.add(
-//         createAssociatedTokenAccountInstruction(
-//           wallet.publicKey,
-//           toAta,
-//           vault,
-//           MINT
-//         )
-//       );
-//     }
+    if (!(await connection.getAccountInfo(toAta))) {
+      txInit.add(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey,
+          toAta,
+          vault,
+          MINT
+        )
+      );
+    }
 
-//     if (txInit.instructions.length > 0) {
-//       const tx = await wallet.signTransaction(txInit);
-// const sig = await connection.sendRawTransaction(tx.serialize());
-// await connection.confirmTransaction(sig);
-//       await connection.confirmTransaction(sig);
-//     }
+    // ✅ FIX: blockhash + fee payer
+    if (txInit.instructions.length > 0) {
+      const latestBlockhash = await connection.getLatestBlockhash();
 
-const txInit = new anchor.web3.Transaction();
+      txInit.recentBlockhash = latestBlockhash.blockhash;
+      txInit.feePayer = wallet.publicKey;
 
-if (!(await connection.getAccountInfo(fromAta))) {
-  txInit.add(
-    createAssociatedTokenAccountInstruction(
-      wallet.publicKey,
-      fromAta,
-      wallet.publicKey,
-      MINT
-    )
-  );
-}
+      const signedTx = await wallet.signTransaction(txInit);
+      const sig = await connection.sendRawTransaction(
+        signedTx.serialize()
+      );
 
-if (!(await connection.getAccountInfo(toAta))) {
-  txInit.add(
-    createAssociatedTokenAccountInstruction(
-      wallet.publicKey,
-      toAta,
-      vault,
-      MINT
-    )
-  );
-}
-
-// ✅ IMPORTANT FIX
-if (txInit.instructions.length > 0) {
-  const latestBlockhash = await connection.getLatestBlockhash();
-
-  txInit.recentBlockhash = latestBlockhash.blockhash;
-  txInit.feePayer = wallet.publicKey;
-
-  const signedTx = await wallet.signTransaction(txInit);
-  const sig = await connection.sendRawTransaction(signedTx.serialize());
-
-  await connection.confirmTransaction(sig);
-}
-
-
+      await connection.confirmTransaction(sig, "confirmed");
+    }
 
     // =============================
     // BUILD UPLINE
@@ -2029,24 +2223,18 @@ if (txInit.instructions.length > 0) {
 
     return tx;
 
-  // } catch (err: any) {
-  //   console.error("❌ Deposit Error:", err);
-  //   throw new Error(err.message || "Deposit failed");
-  // }
+  } catch (err: any) {
+    console.error("❌ Deposit Error:", err);
 
-} catch (err: any) {
-  console.error("❌ Deposit Error:", err);
+    // ✅ DUPLICATE TX FIX
+    if (
+      err.message?.includes("already been processed") ||
+      err.message?.includes("Transaction simulation failed")
+    ) {
+      console.log("⚠️ Already processed → treating as success");
+      return "success";
+    }
 
-  // ✅ DUPLICATE TX FIX
-  if (
-    err.message?.includes("already been processed") ||
-    err.message?.includes("Transaction simulation failed")
-  ) {
-    console.log("⚠️ Already processed → treating as success");
-    return "success";
+    throw new Error(err.message || "Deposit failed");
   }
-
-  throw new Error(err.message || "Deposit failed");
-}
-  
 };

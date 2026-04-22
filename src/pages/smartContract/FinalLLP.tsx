@@ -269,62 +269,119 @@ function FinalLLP() {
   // =========================
   // SUBMIT FUNCTION (FINAL FIX)
   // =========================
-  const handleSubmit = async () => {
-    try {
-      if (loading) return;
+//   const handleSubmit = async () => {
+//     try {
+//       if (loading) return;
 
-      if (!userData) {
-        return alert("⏳ Loading user data...");
-      }
+//       if (!userData) {
+//         return alert("⏳ Loading user data...");
+//       }
 
-      if (!amount) return alert("Enter amount");
+//       if (!amount) return alert("Enter amount");
 
-      const amt = Number(amount);
+//       const amt = Number(amount);
 
-      console.log("PRE VALUE:", userData?.preLpp);
-      console.log("FINAL VALUE:", userData?.finalLpp);
+//       console.log("PRE VALUE:", userData?.preLpp);
+//       console.log("FINAL VALUE:", userData?.finalLpp);
 
-      // ✅ PRE must be done
-      if (Number(userData?.preLpp || 0) === 0) {
-        return alert("❌ Complete PRE LLP first");
-      }
+//       // ✅ PRE must be done
+//       if (Number(userData?.preLpp || 0) === 0) {
+//         return alert("❌ Complete PRE LLP first");
+//       }
 
-      // ✅ FINAL range
-    //   if (amt < 101 || amt > 5000) {
-    //     return alert("❌ Final LPP: 101 - 5000");
-    //   }
+//       // ✅ FINAL range
+//     //   if (amt < 101 || amt > 5000) {
+//     //     return alert("❌ Final LPP: 101 - 5000");
+//     //   }
 
 
-if (amt < 101) {
-  return alert("❌ Final LPP minimum 101");
-}
+// if (amt < 101) {
+//   return alert("❌ Final LPP minimum 101");
+// }
 
-      setLoading(true);
+//       setLoading(true);
 
-      // 🚀 CALL CONTRACT
-      const tx = await deposit(amt, true);
+//       // 🚀 CALL CONTRACT
+//       const tx = await deposit(amt, true);
 
-      // ✅ SUCCESS HANDLE
-      if (tx === "success") {
-        alert("✅ Final LLP Success (Already processed)");
-      } else {
-        alert("✅ Final LLP Success");
-      }
+//       // ✅ SUCCESS HANDLE
+//       if (tx === "success") {
+//         alert("✅ Final LLP Success (Already processed)");
+//       } else {
+//         alert("✅ Final LLP Success");
+//       }
 
-      setAmount("");
+//       setAmount("");
 
-      // 🔥 WAIT FOR BLOCKCHAIN UPDATE
-      await new Promise((res) => setTimeout(res, 2000));
+//       // 🔥 WAIT FOR BLOCKCHAIN UPDATE
+//       await new Promise((res) => setTimeout(res, 2000));
 
-      await fetchUser();
+//       await fetchUser();
 
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Final LLP failed");
-    } finally {
-      setLoading(false);
+//     } catch (err: any) {
+//       console.error(err);
+//       alert(err.message || "Final LLP failed");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+
+
+const handleSubmit = async () => {
+  try {
+    if (loading) return;
+
+    if (!userData) {
+      return alert("⏳ Loading user data...");
     }
-  };
+
+    if (!amount) return alert("Enter amount");
+
+    const amt = Number(amount);
+
+    console.log("PRE:", userData?.preLpp);
+    console.log("FINAL:", userData?.finalLpp);
+
+    // ❌ PRE required
+    if (Number(userData?.preLpp || 0) === 0) {
+      return alert("❌ Complete PRE LLP first");
+    }
+
+    // ✅ FINAL VALIDATION
+    if (amt < 101) {
+      return alert("❌ Final LPP minimum 101");
+    }
+
+    setLoading(true);
+
+    const tx = await deposit(amt, true);
+
+    if (tx === "success") {
+      alert("✅ Final LLP Success (Already processed)");
+    } else {
+      alert("✅ Final LLP Success");
+    }
+
+    setAmount("");
+
+    // 🔥 WAIT FOR BLOCKCHAIN
+    await new Promise((res) => setTimeout(res, 2000));
+
+    await fetchUser();
+
+  } catch (err: any) {
+    console.error(err);
+    alert(err.message || "Final LLP failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
 
   return (
     <>

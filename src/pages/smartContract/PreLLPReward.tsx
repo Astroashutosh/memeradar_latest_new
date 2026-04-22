@@ -138,40 +138,100 @@ function PreLLPReward() {
   // =========================
   // SUBMIT FUNCTION
   // =========================
-  const handleSubmit = async () => {
-    try {
-      if (!amount) return alert("Enter amount");
+  // const handleSubmit = async () => {
+  //   try {
+  //     if (!amount) return alert("Enter amount");
 
-      const amt = Number(amount);
+  //     const amt = Number(amount);
 
-      // ✅ VALIDATION
-      if (amt < 10 || amt > 100) {
-        return alert("Pre LPP amount must be 10 - 100");
-      }
+  //     // ✅ VALIDATION
+  //     if (amt < 10 || amt > 100) {
+  //       return alert("Pre LPP amount must be 10 - 100");
+  //     }
 
-      setLoading(true);
+  //     setLoading(true);
 
-      // ✅ CONTRACT CALL
-      await deposit(amt, false);
+  //     // ✅ CONTRACT CALL
+  //     await deposit(amt, false);
 
-      alert("✅ Deposit Success");
+  //     alert("✅ Deposit Success");
 
-      setAmount("");
+  //     setAmount("");
 
-      // 🔄 refresh data
-      const wallet = localStorage.getItem("wallet");
-      if (wallet) {
-        const updated = await getUserData(wallet);
-        setUserData(updated);
-      }
+  //     // 🔄 refresh data
+  //     const wallet = localStorage.getItem("wallet");
+  //     if (wallet) {
+  //       const updated = await getUserData(wallet);
+  //       setUserData(updated);
+  //     }
 
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Deposit failed");
-    } finally {
-      setLoading(false);
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     alert(err.message || "Deposit failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+
+
+const handleSubmit = async () => {
+  try {
+    if (loading) return;
+
+    if (!userData) {
+      return alert("⏳ Loading user data...");
     }
-  };
+
+    if (!amount) return alert("Enter amount");
+
+    const amt = Number(amount);
+
+    console.log("PRE VALUE:", userData?.preLpp);
+
+    // ✅ PRE ALREADY DONE BLOCK
+    if (Number(userData?.preLpp || 0) > 0) {
+      return alert("❌ Pre LLP already completed");
+    }
+
+    // ✅ VALIDATION
+    if (amt < 10 || amt > 100) {
+      return alert("Pre LPP amount must be 10 - 100");
+    }
+
+    setLoading(true);
+
+    const tx = await deposit(amt, false);
+
+    if (tx === "success") {
+      alert("✅ Pre LLP Success (Already processed)");
+    } else {
+      alert("✅ Pre LLP Success");
+    }
+
+    setAmount("");
+
+    // 🔥 WAIT (important)
+    await new Promise((res) => setTimeout(res, 2000));
+
+    const wallet = localStorage.getItem("wallet");
+    if (wallet) {
+      const updated = await getUserData(wallet);
+      setUserData(updated);
+    }
+
+  } catch (err: any) {
+    console.error(err);
+    alert(err.message || "Deposit failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   return (
     <>
@@ -255,11 +315,20 @@ function PreLLPReward() {
 
                   {/* BUTTON */}
                   <div className="col-lg-12">
-                    <button
+                    {/* <button
                       onClick={handleSubmit}
                       className="btn btn-primary d-block"
                       disabled={loading}
-                    >
+                    > */}
+                    <button
+  onClick={handleSubmit}
+  className="btn btn-primary d-block"
+  disabled={
+    loading ||
+    !userData ||
+    Number(userData?.preLpp || 0) > 0
+  }
+>
                       {loading ? "Processing..." : "Approved USDT"}
                     </button>
                   </div>
